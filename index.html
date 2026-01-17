@@ -1,24 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <title>Harper Super sMath!</title>
 
+  <!-- iPad / iOS App Settings -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- App Icon (optional later) -->
+  <!-- <link rel="apple-touch-icon" href="icon.png"> -->
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+
   <div class="box">
-    <h1>Harper Super sMath! ⭐</h1>
-    <p id="question"></p>
+
+    <!-- APP TITLE -->
+    <h1>⭐ Harper Super sMath! ⭐</h1>
+
+    <!-- DAILY GOAL -->
+    <p class="goal">
+      🎯 Today: <span id="todayDone">0</span> / 100
+    </p>
+
+    <!-- THEME SELECTOR -->
+    <div class="themes">
+      <button onclick="applyTheme('animals')">🐶 Animals</button>
+      <button onclick="applyTheme('space')">🚀 Space</button>
+      <button onclick="applyTheme('rainbow')">🌈 Rainbow</button>
+    </div>
+
+    <hr>
+
+    <!-- QUESTION -->
+    <p id="question" class="question"></p>
+
+    <!-- ANSWERS -->
     <div id="answers"></div>
-    <p id="msg"></p>
-    <p>⭐ Stars: <span id="stars">0</span></p>
+
+    <!-- FEEDBACK -->
+    <p id="msg" class="message"></p>
+
+    <!-- STARS -->
+    <p class="stars">
+      ⭐ Stars: <span id="stars">0</span>
+    </p>
+
   </div>
 
+  <!-- APP LOGIC -->
   <script src="app.js"></script>
+
 </body>
 </html>
