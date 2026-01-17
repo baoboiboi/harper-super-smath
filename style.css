@@ -17,9 +17,7 @@ body {
   padding: 20px;
 }
 
-.app-header {
-  text-align: center;
-}
+.app-header { text-align: center; }
 
 .goal {
   font-size: 18px;
@@ -81,11 +79,6 @@ body {
   border: none;
   background: #e0f7fa;
   box-shadow: 0 6px 12px rgba(0,0,0,.2);
-  transition: transform .1s;
-}
-
-.answers button:active {
-  transform: scale(0.95);
 }
 
 .message {
@@ -126,17 +119,11 @@ body {
   padding: 30px;
   border-radius: 30px;
   text-align: center;
-  animation: pop .4s ease;
 }
 
 .celebration-card h2 { color: #ff4081; }
 .celebration-card p { color: #4caf50; font-weight: bold; }
 .trophy { font-size: 60px; margin: 16px 0; }
-
-@keyframes pop {
-  from { transform: scale(.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
 
 /* Parent Panel */
 .parent-panel {
