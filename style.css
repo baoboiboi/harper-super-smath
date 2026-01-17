@@ -1,4 +1,3 @@
-/* RESET */
 * {
   box-sizing: border-box;
 }
@@ -10,7 +9,7 @@ body {
   min-height: 100vh;
 }
 
-/* APP CONTAINER */
+/* APP */
 .app-container {
   max-width: 420px;
   margin: auto;
@@ -20,7 +19,7 @@ body {
 /* HEADER */
 .app-header {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .app-header h1 {
@@ -31,7 +30,6 @@ body {
 .goal {
   font-size: 18px;
   font-weight: bold;
-  margin-top: 6px;
 }
 
 /* THEMES */
@@ -39,7 +37,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .themes button {
@@ -47,21 +45,20 @@ body {
   border-radius: 20px;
   border: none;
   font-size: 16px;
-  background: #ffffff;
+  background: white;
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
   cursor: pointer;
 }
 
-/* MAIN CARD */
+/* CARD */
 .card {
   background: white;
-  border-radius: 24px;
+  border-radius: 26px;
   padding: 24px 16px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
   text-align: center;
 }
 
-/* QUESTION */
 .question {
   font-size: 34px;
   font-weight: bold;
@@ -72,29 +69,86 @@ body {
 .answers {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 .answers button {
   padding: 16px;
-  font-size: 20px;
-  border-radius: 18px;
+  font-size: 22px;
+  border-radius: 20px;
   border: none;
   background: #e0f7fa;
   box-shadow: 0 6px 12px rgba(0,0,0,0.12);
   cursor: pointer;
+  transition: transform 0.1s ease;
 }
 
-/* FEEDBACK */
+.answers button:active {
+  transform: scale(0.95);
+}
+
+/* MESSAGE */
 .message {
   margin-top: 18px;
   font-size: 20px;
-  min-height: 28px;
+  min-height: 30px;
 }
 
 /* FOOTER */
 .footer {
   text-align: center;
   font-size: 18px;
-  margin-top: 18px;
+  margin-top: 16px;
+}
+
+/* CELEBRATION */
+.celebration {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.95);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.celebration-card {
+  background: white;
+  padding: 32px 26px;
+  border-radius: 30px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  animation: pop 0.4s ease;
+}
+
+.celebration-card h2 {
+  font-size: 30px;
+  color: #ff4081;
+}
+
+.celebration-card p {
+  font-size: 20px;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.trophy {
+  font-size: 60px;
+  margin: 18px 0;
+}
+
+@keyframes pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* CONFETTI */
+#confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
