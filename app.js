@@ -8,11 +8,19 @@ function todayKey() {
 const today = todayKey();
 
 /* Storage */
+
 let progress = JSON.parse(localStorage.getItem("progress")) || {};
 let stars = Number(localStorage.getItem("stars")) || 0;
 let soundOn = localStorage.getItem("soundOn") !== "false";
 let currentTheme = localStorage.getItem("theme") || "rainbow";
+let settings = JSON.parse(localStorage.getItem("settings")) || {
+  goal: 100,
+  difficulty: "normal",
+  sound: true
+};
 
+const DAILY_GOAL = settings.goal;
+soundOn = settings.sound;
 if (!progress[today]) progress[today] = { done: 0 };
 
 /* Themes */
@@ -49,13 +57,32 @@ function rand(min, max) {
 
 /* Math */
 function generateProblem() {
-  const type = rand(1,4);
-  let a,b,ans,op;
-  if(type===1){a=rand(10,99);b=rand(10,99);ans=a+b;op="+";}
-  if(type===2){a=rand(30,99);b=rand(10,a);ans=a-b;op="-";}
-  if(type===3){a=rand(2,9);b=rand(2,9);ans=a*b;op="×";}
-  if(type===4){b=rand(2,9);ans=rand(2,9);a=b*ans;op="÷";}
-  return {q:`${a} ${op} ${b} = ?`, a:ans};
+  const level = settings.difficulty;
+  let a, b, ans, op;
+
+  if (level === "easy") {
+    a = rand(1, 20);
+    b = rand(1, 20);
+    ans = a + b;
+    op = "+";
+  }
+
+  if (level === "normal") {
+    const type = rand(1, 4);
+    if(type===1){a=rand(10,99);b=rand(10,99);ans=a+b;op="+";}
+    if(type===2){a=rand(30,99);b=rand(10,a);ans=a-b;op="-";}
+    if(type===3){a=rand(2,9);b=rand(2,9);ans=a*b;op="×";}
+    if(type===4){b=rand(2,9);ans=rand(2,9);a=b*ans;op="÷";}
+  }
+
+  if (level === "hard") {
+    a = rand(20, 200);
+    b = rand(10, 20);
+    ans = a * b;
+    op = "×";
+  }
+
+  return { q: `${a} ${op} ${b} = ?`, a: ans };
 }
 
 function choices(ans) {
