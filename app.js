@@ -1,3 +1,17 @@
+const DAILY_GOAL = 100;
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+let today = todayKey();
+let progress = JSON.parse(localStorage.getItem("progress")) || {};
+
+if (!progress[today]) {
+  progress[today] = { done: 0 };
+}
+
 let stars = 0;
 
 function randomInt(min, max) {
