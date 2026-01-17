@@ -14,45 +14,51 @@
 
 <div class="app-container">
 
-  <!-- HEADER -->
   <header class="app-header">
     <h1>⭐ Harper Super sMath! ⭐</h1>
-    <p class="goal">
-      🎯 Today: <span id="todayDone">0</span> / 100
-    </p>
+    <p class="goal">🎯 Today: <span id="todayDone">0</span> / 100</p>
   </header>
 
-  <!-- THEMES -->
   <div class="themes">
     <button onclick="applyTheme('animals')">🐶 Animals</button>
     <button onclick="applyTheme('space')">🚀 Space</button>
     <button onclick="applyTheme('rainbow')">🌈 Rainbow</button>
   </div>
 
-  <!-- MAIN CARD -->
   <div class="card">
+    <div class="mascot">🌈</div>
     <div id="question" class="question"></div>
     <div id="answers" class="answers"></div>
     <div id="msg" class="message"></div>
   </div>
 
-  <!-- FOOTER -->
   <footer class="footer">
     ⭐ Stars: <span id="stars">0</span>
+    <button id="muteBtn">🔊</button>
   </footer>
-
 </div>
 
-<!-- CELEBRATION OVERLAY -->
+<!-- Celebration -->
 <div id="celebration" class="celebration hidden">
   <div class="celebration-card">
     <h2>🎉 AMAZING, HARPER! 🎉</h2>
-    <p>You finished today’s math goal!</p>
+    <p>You finished today’s goal!</p>
     <div class="trophy">🏆</div>
     <p>Let’s play again! 🌈</p>
   </div>
   <canvas id="confetti"></canvas>
 </div>
+
+<!-- Sounds -->
+<audio id="sound-correct" src="sounds/correct.mp3" preload="auto"></audio>
+<audio id="sound-wrong" src="sounds/wrong.mp3" preload="auto"></audio>
+
+<!-- Service Worker -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js");
+}
+</script>
 
 <script src="app.js"></script>
 </body>

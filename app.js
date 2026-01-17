@@ -1,146 +1,164 @@
 const DAILY_GOAL = 100;
 
-/* DATE */
+/* Date */
 function todayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
-
 const today = todayKey();
 
-/* STORAGE */
+/* Storage */
 let progress = JSON.parse(localStorage.getItem("progress")) || {};
 let stars = Number(localStorage.getItem("stars")) || 0;
+let soundOn = localStorage.getItem("soundOn") !== "false";
 let currentTheme = localStorage.getItem("theme") || "rainbow";
 
-if (!progress[today]) {
-  progress[today] = { done: 0 };
-}
+if (!progress[today]) progress[today] = { done: 0 };
 
-/* THEMES */
+/* Themes */
 const themes = {
-  animals: { bg: "#FFF3E0", button: "#FFB74D" },
-  space: { bg: "#0D1B2A", button: "#1B9AAA" },
-  rainbow: { bg: "#FCE4EC", button: "#BA68C8" }
+  animals: { button: "#FFB74D", mascot: "🐶" },
+  space: { button: "#1B9AAA", mascot: "🚀" },
+  rainbow: { button: "#BA68C8", mascot: "🌈" }
 };
 
 function applyTheme(name) {
   const t = themes[name];
-  document.body.style.background = t.bg;
-  document.querySelectorAll(".answers button").forEach(b => {
-    b.style.background = t.button;
-  });
+  document.querySelector(".mascot").textContent = t.mascot;
+  document.querySelectorAll(".answers button").forEach(b => b.style.background = t.button);
   localStorage.setItem("theme", name);
 }
 
-/* UTIL */
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+/* Sounds */
+const correctSound = document.getElementById("sound-correct");
+const wrongSound = document.getElementById("sound-wrong");
+const muteBtn = document.getElementById("muteBtn");
+
+function play(sound) {
+  if (!soundOn) return;
+  sound.currentTime = 0;
+  sound.play();
 }
 
-/* MATH */
+muteBtn.onclick = () => {
+  soundOn = !soundOn;
+  localStorage.setItem("soundOn", soundOn);
+  muteBtn.textContent = soundOn ? "🔊" : "🔇";
+};
+muteBtn.textContent = soundOn ? "🔊" : "🔇";
+
+/* Utils */
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+/* Math */
 function generateProblem() {
-  const type = randomInt(1, 4);
-  let a, b, answer;
-
-  if (type === 1) { a = randomInt(10,99); b = randomInt(10,99); answer = a+b; }
-  if (type === 2) { a = randomInt(30,99); b = randomInt(10,a); answer = a-b; }
-  if (type === 3) { a = randomInt(2,9); b = randomInt(2,9); answer = a*b; }
-  if (type === 4) { b = randomInt(2,9); answer = randomInt(2,9); a = b*answer; }
-
-  return { question: `${a} ${["+","-","×","÷"][type-1]} ${b} = ?`, answer };
+  const type = rand(1,4);
+  let a,b,ans,op;
+  if(type===1){a=rand(10,99);b=rand(10,99);ans=a+b;op="+";}
+  if(type===2){a=rand(30,99);b=rand(10,a);ans=a-b;op="-";}
+  if(type===3){a=rand(2,9);b=rand(2,9);ans=a*b;op="×";}
+  if(type===4){b=rand(2,9);ans=rand(2,9);a=b*ans;op="÷";}
+  return {q:`${a} ${op} ${b} = ?`, a:ans};
 }
 
-function generateChoices(correct) {
-  const set = new Set([correct]);
-  while (set.size < 4) set.add(correct + randomInt(-10,10));
-  return [...set].sort(() => Math.random() - 0.5);
+function choices(ans){
+  const s=new Set([ans]);
+  while(s.size<4)s.add(ans+rand(-10,10));
+  return [...s].sort(()=>Math.random()-0.5);
 }
 
 /* UI */
-function updateUI() {
-  document.getElementById("stars").textContent = stars;
-  document.getElementById("todayDone").textContent = progress[today].done;
+function updateUI(){
+  starsEl.textContent = stars;
+  todayDone.textContent = progress[today].done;
 }
 
-/* CELEBRATION */
-function showCelebration() {
-  document.getElementById("celebration").classList.remove("hidden");
+/* Sparkle */
+function sparkle(){
+  const s=document.createElement("div");
+  s.className="sparkle";
+  s.textContent="✨";
+  s.style.left=Math.random()*innerWidth+"px";
+  s.style.top=Math.random()*innerHeight+"px";
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),800);
+}
+
+/* Celebration */
+function showCelebration(){
+  celebration.classList.remove("hidden");
   startConfetti();
-
-  setTimeout(() => {
-    document.getElementById("celebration").classList.add("hidden");
-    progress[today].done = 0;
-    localStorage.setItem("progress", JSON.stringify(progress));
-    loadQuestion();
-  }, 5000);
+  setTimeout(()=>{
+    celebration.classList.add("hidden");
+    progress[today].done=0;
+    localStorage.setItem("progress",JSON.stringify(progress));
+    load();
+  },5000);
 }
 
-/* CONFETTI */
-function startConfetti() {
-  const canvas = document.getElementById("confetti");
-  const ctx = canvas.getContext("2d");
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-
-  const confetti = Array.from({length:150},()=>({
-    x:Math.random()*canvas.width,
-    y:Math.random()*canvas.height,
+/* Confetti */
+function startConfetti(){
+  const ctx=confetti.getContext("2d");
+  confetti.width=innerWidth;
+  confetti.height=innerHeight;
+  const pcs=Array.from({length:150},()=>({
+    x:Math.random()*confetti.width,
+    y:Math.random()*confetti.height,
     r:Math.random()*6+4,
     c:`hsl(${Math.random()*360},100%,60%)`,
     s:Math.random()*3+2
   }));
-
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    confetti.forEach(p=>{
+  (function draw(){
+    ctx.clearRect(0,0,confetti.width,confetti.height);
+    pcs.forEach(p=>{
       p.y+=p.s;
-      if(p.y>canvas.height)p.y=-10;
+      if(p.y>confetti.height)p.y=-10;
       ctx.fillStyle=p.c;
       ctx.beginPath();
       ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
       ctx.fill();
     });
     requestAnimationFrame(draw);
-  }
-  draw();
+  })();
 }
 
-/* MAIN */
-function loadQuestion() {
-  if (progress[today].done >= DAILY_GOAL) {
-    showCelebration();
-    return;
-  }
-
-  const { question, answer } = generateProblem();
-  document.getElementById("question").textContent = question;
-  document.getElementById("msg").textContent = "";
-
-  const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "";
-
-  generateChoices(answer).forEach(choice => {
-    const btn = document.createElement("button");
-    btn.textContent = choice;
-    btn.onclick = () => {
-      if (choice === answer) {
+/* Main */
+function load(){
+  if(progress[today].done>=DAILY_GOAL){showCelebration();return;}
+  const {q,a}=generateProblem();
+  question.textContent=q;
+  msg.textContent="";
+  answers.innerHTML="";
+  choices(a).forEach(c=>{
+    const b=document.createElement("button");
+    b.textContent=c;
+    b.onclick=()=>{
+      if(c===a){
+        play(correctSound);
+        sparkle();
         stars++;
         progress[today].done++;
-        localStorage.setItem("stars", stars);
-        localStorage.setItem("progress", JSON.stringify(progress));
+        localStorage.setItem("stars",stars);
+        localStorage.setItem("progress",JSON.stringify(progress));
         updateUI();
-        loadQuestion();
-      } else {
-        document.getElementById("msg").textContent = "💛 Try again!";
+        load();
+      }else{
+        play(wrongSound);
+        msg.textContent="💛 Try again!";
       }
     };
-    answersDiv.appendChild(btn);
+    answers.appendChild(b);
   });
-
   applyTheme(currentTheme);
 }
 
-/* INIT */
+const question=document.getElementById("question");
+const answers=document.getElementById("answers");
+const msg=document.getElementById("msg");
+const starsEl=document.getElementById("stars");
+const todayDone=document.getElementById("todayDone");
+const celebration=document.getElementById("celebration");
+const confetti=document.getElementById("confetti");
+
 updateUI();
-loadQuestion();
+load();
