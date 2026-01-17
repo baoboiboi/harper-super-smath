@@ -41,6 +41,7 @@ body {
   background: white;
   font-size: 16px;
   box-shadow: 0 3px 6px rgba(0,0,0,.15);
+  cursor: pointer;
 }
 
 /* Card */
@@ -83,6 +84,7 @@ body {
   border: none;
   background: #e0f7fa;
   box-shadow: 0 6px 12px rgba(0,0,0,.2);
+  cursor: pointer;
   transition: transform .1s;
 }
 
@@ -145,16 +147,4 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-}
-
-/* Sparkle */
-.sparkle {
-  position: fixed;
-  font-size: 24px;
-  animation: sparkle .8s forwards;
-}
-
-@keyframes sparkle {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(2); }
 }

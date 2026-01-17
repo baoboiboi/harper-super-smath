@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Harper Super sMath!</title>
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="style.css">
@@ -36,13 +35,14 @@
     ⭐ Stars: <span id="stars">0</span>
     <button id="muteBtn">🔊</button>
   </footer>
+
 </div>
 
 <!-- Celebration -->
 <div id="celebration" class="celebration hidden">
   <div class="celebration-card">
     <h2>🎉 AMAZING, HARPER! 🎉</h2>
-    <p>You finished today’s goal!</p>
+    <p>You finished today’s math goal!</p>
     <div class="trophy">🏆</div>
     <p>Let’s play again! 🌈</p>
   </div>
@@ -50,15 +50,8 @@
 </div>
 
 <!-- Sounds -->
-<audio id="sound-correct" src="sounds/correct.mp3" preload="auto"></audio>
-<audio id="sound-wrong" src="sounds/wrong.mp3" preload="auto"></audio>
-
-<!-- Service Worker -->
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js");
-}
-</script>
+<audio id="sound-correct" src="sounds/correct.mp3"></audio>
+<audio id="sound-wrong" src="sounds/wrong.mp3"></audio>
 
 <script src="app.js"></script>
 </body>

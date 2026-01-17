@@ -26,6 +26,7 @@ function applyTheme(name) {
   const t = themes[name];
   document.querySelector(".mascot").textContent = t.mascot;
   document.querySelectorAll(".answers button").forEach(b => b.style.background = t.button);
+  currentTheme = name;
   localStorage.setItem("theme", name);
 }
 
@@ -33,12 +34,6 @@ function applyTheme(name) {
 const correctSound = document.getElementById("sound-correct");
 const wrongSound = document.getElementById("sound-wrong");
 const muteBtn = document.getElementById("muteBtn");
-
-function play(sound) {
-  if (!soundOn) return;
-  sound.currentTime = 0;
-  sound.play();
-}
 
 muteBtn.onclick = () => {
   soundOn = !soundOn;
@@ -48,7 +43,9 @@ muteBtn.onclick = () => {
 muteBtn.textContent = soundOn ? "🔊" : "🔇";
 
 /* Utils */
-function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 /* Math */
 function generateProblem() {
@@ -61,47 +58,30 @@ function generateProblem() {
   return {q:`${a} ${op} ${b} = ?`, a:ans};
 }
 
-function choices(ans){
-  const s=new Set([ans]);
-  while(s.size<4)s.add(ans+rand(-10,10));
-  return [...s].sort(()=>Math.random()-0.5);
-}
-
-/* UI */
-function updateUI(){
-  starsEl.textContent = stars;
-  todayDone.textContent = progress[today].done;
-}
-
-/* Sparkle */
-function sparkle(){
-  const s=document.createElement("div");
-  s.className="sparkle";
-  s.textContent="✨";
-  s.style.left=Math.random()*innerWidth+"px";
-  s.style.top=Math.random()*innerHeight+"px";
-  document.body.appendChild(s);
-  setTimeout(()=>s.remove(),800);
+function choices(ans) {
+  const set = new Set([ans]);
+  while(set.size < 4) set.add(ans + rand(-10,10));
+  return [...set].sort(() => Math.random() - 0.5);
 }
 
 /* Celebration */
-function showCelebration(){
+function showCelebration() {
   celebration.classList.remove("hidden");
   startConfetti();
-  setTimeout(()=>{
+  setTimeout(() => {
     celebration.classList.add("hidden");
-    progress[today].done=0;
-    localStorage.setItem("progress",JSON.stringify(progress));
+    progress[today].done = 0;
+    localStorage.setItem("progress", JSON.stringify(progress));
     load();
-  },5000);
+  }, 5000);
 }
 
 /* Confetti */
-function startConfetti(){
-  const ctx=confetti.getContext("2d");
-  confetti.width=innerWidth;
-  confetti.height=innerHeight;
-  const pcs=Array.from({length:150},()=>({
+function startConfetti() {
+  const ctx = confetti.getContext("2d");
+  confetti.width = innerWidth;
+  confetti.height = innerHeight;
+  const pcs = Array.from({length:150},()=>({
     x:Math.random()*confetti.width,
     y:Math.random()*confetti.height,
     r:Math.random()*6+4,
@@ -123,42 +103,53 @@ function startConfetti(){
 }
 
 /* Main */
-function load(){
-  if(progress[today].done>=DAILY_GOAL){showCelebration();return;}
-  const {q,a}=generateProblem();
-  question.textContent=q;
-  msg.textContent="";
-  answers.innerHTML="";
-  choices(a).forEach(c=>{
-    const b=document.createElement("button");
-    b.textContent=c;
-    b.onclick=()=>{
-      if(c===a){
-        play(correctSound);
-        sparkle();
+function load() {
+  if (progress[today].done >= DAILY_GOAL) {
+    showCelebration();
+    return;
+  }
+
+  const { q, a } = generateProblem();
+  question.textContent = q;
+  msg.textContent = "";
+  answers.innerHTML = "";
+
+  choices(a).forEach(c => {
+    const b = document.createElement("button");
+    b.textContent = c;
+    b.onclick = () => {
+      if (c === a) {
+        if (soundOn) { correctSound.currentTime = 0; correctSound.play(); }
         stars++;
         progress[today].done++;
-        localStorage.setItem("stars",stars);
-        localStorage.setItem("progress",JSON.stringify(progress));
+        localStorage.setItem("stars", stars);
+        localStorage.setItem("progress", JSON.stringify(progress));
         updateUI();
         load();
-      }else{
-        play(wrongSound);
-        msg.textContent="💛 Try again!";
+      } else {
+        if (soundOn) { wrongSound.currentTime = 0; wrongSound.play(); }
+        msg.textContent = "💛 Try again!";
       }
     };
     answers.appendChild(b);
   });
+
   applyTheme(currentTheme);
 }
 
-const question=document.getElementById("question");
-const answers=document.getElementById("answers");
-const msg=document.getElementById("msg");
-const starsEl=document.getElementById("stars");
-const todayDone=document.getElementById("todayDone");
-const celebration=document.getElementById("celebration");
-const confetti=document.getElementById("confetti");
+function updateUI() {
+  starsEl.textContent = stars;
+  todayDone.textContent = progress[today].done;
+}
+
+/* DOM */
+const question = document.getElementById("question");
+const answers = document.getElementById("answers");
+const msg = document.getElementById("msg");
+const starsEl = document.getElementById("stars");
+const todayDone = document.getElementById("todayDone");
+const celebration = document.getElementById("celebration");
+const confetti = document.getElementById("confetti");
 
 updateUI();
 load();
