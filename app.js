@@ -27,6 +27,7 @@ const aEl = document.getElementById("answers");
 const msgEl = document.getElementById("message");
 const currentEl = document.getElementById("current");
 const totalEl = document.getElementById("total");
+const parentResetLink = document.getElementById("parentResetLink");
 
 totalEl.textContent = SESSION_SIZE;
 currentEl.textContent = session.current;
@@ -60,33 +61,10 @@ function newProblem() {
   let type = rand(1, 4);
   let a, b, correct, text;
 
-  if (type === 1) {
-    a = rand(10, 99);
-    b = rand(10, 99);
-    correct = a + b;
-    text = `${a} + ${b}`;
-  }
-
-  if (type === 2) {
-    a = rand(30, 99);
-    b = rand(10, a);
-    correct = a - b;
-    text = `${a} - ${b}`;
-  }
-
-  if (type === 3) {
-    a = rand(2, 9);
-    b = rand(2, 9);
-    correct = a * b;
-    text = `${a} × ${b}`;
-  }
-
-  if (type === 4) {
-    b = rand(2, 9);
-    correct = rand(2, 9);
-    a = b * correct;
-    text = `${a} ÷ ${b}`;
-  }
+  if (type === 1) { a = rand(10,99); b = rand(10,99); correct = a + b; text = `${a} + ${b}`; }
+  if (type === 2) { a = rand(30,99); b = rand(10,a); correct = a - b; text = `${a} - ${b}`; }
+  if (type === 3) { a = rand(2,9); b = rand(2,9); correct = a * b; text = `${a} × ${b}`; }
+  if (type === 4) { b = rand(2,9); correct = rand(2,9); a = b * correct; text = `${a} ÷ ${b}`; }
 
   qEl.textContent = `${text} = ?`;
   renderAnswers(correct);
@@ -97,9 +75,7 @@ function renderAnswers(correct) {
   msgEl.textContent = "";
 
   const opts = new Set([correct]);
-  while (opts.size < 4) {
-    opts.add(correct + rand(-10, 10));
-  }
+  while (opts.size < 4) opts.add(correct + rand(-10, 10));
 
   [...opts].sort(() => Math.random() - 0.5).forEach(v => {
     const btn = document.createElement("button");
@@ -136,13 +112,14 @@ function nextOrEnd() {
 }
 
 /***********************
- * SESSION END
+ * SESSION END / RESET
  ***********************/
 function endSession() {
   sessionEnded = true;
 
   qEl.textContent = "📊 Session Complete";
   aEl.innerHTML = "";
+  msgEl.textContent = "";
 
   const summary = document.createElement("p");
   summary.textContent = `Correct: ${session.correct} / ${SESSION_SIZE}`;
@@ -177,6 +154,10 @@ function endSession() {
 
   aEl.append(summary, nameInput, codeInput, resetBtn);
 }
+
+parentResetLink.onclick = () => {
+  endSession();
+};
 
 /***********************
  * START
