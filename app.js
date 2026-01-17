@@ -3,7 +3,6 @@
  ***********************/
 const SESSION_SIZE = 100;
 
-// Hardcoded parents
 const PARENTS = [
   { name: "Dylan", code: "7391" },
   { name: "Mom", code: "2468" },
@@ -11,20 +10,14 @@ const PARENTS = [
 ];
 
 /***********************
- * DATE
- ***********************/
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-}
-
-/***********************
- * SESSION STATE
+ * STATE
  ***********************/
 let session = JSON.parse(localStorage.getItem("session")) || {
   current: 0,
   correct: 0
 };
+
+let sessionEnded = false;
 
 /***********************
  * DOM
@@ -41,12 +34,15 @@ currentEl.textContent = session.current;
 /***********************
  * THEME
  ***********************/
-function setTheme(name) {
-  document.body.style.background =
-    name === "animals" ? "linear-gradient(#fff3e0,#ffe0b2)" :
-    name === "space" ? "linear-gradient(#0d47a1,#1976d2)" :
-    "linear-gradient(#fce4ec,#e3f2fd)";
-}
+document.querySelectorAll(".themes button").forEach(btn => {
+  btn.onclick = () => {
+    const t = btn.dataset.theme;
+    document.body.style.background =
+      t === "animals" ? "linear-gradient(#fff3e0,#ffe0b2)" :
+      t === "space" ? "linear-gradient(#0d47a1,#1976d2)" :
+      "linear-gradient(#fce4ec,#e3f2fd)";
+  };
+});
 
 /***********************
  * UTIL
@@ -56,9 +52,11 @@ function rand(min, max) {
 }
 
 /***********************
- * MATH PROBLEM
+ * GAME LOGIC
  ***********************/
 function newProblem() {
+  if (sessionEnded) return;
+
   let type = rand(1, 4);
   let a, b, correct, text;
 
@@ -91,27 +89,25 @@ function newProblem() {
   }
 
   qEl.textContent = `${text} = ?`;
-  showAnswers(correct);
+  renderAnswers(correct);
 }
 
-/***********************
- * ANSWERS (ONE ATTEMPT)
- ***********************/
-function showAnswers(correct) {
+function renderAnswers(correct) {
   aEl.innerHTML = "";
   msgEl.textContent = "";
 
-  let options = new Set([correct]);
-  while (options.size < 4) {
-    options.add(correct + rand(-10, 10));
+  const opts = new Set([correct]);
+  while (opts.size < 4) {
+    opts.add(correct + rand(-10, 10));
   }
 
-  [...options].sort(() => Math.random() - 0.5).forEach(v => {
+  [...opts].sort(() => Math.random() - 0.5).forEach(v => {
     const btn = document.createElement("button");
     btn.textContent = v;
 
     btn.onclick = () => {
-      // Lock all buttons
+      if (sessionEnded) return;
+
       document.querySelectorAll(".answers button")
         .forEach(b => b.disabled = true);
 
@@ -131,63 +127,62 @@ function showAnswers(correct) {
   });
 }
 
-/***********************
- * NEXT OR END
- ***********************/
 function nextOrEnd() {
   if (session.current >= SESSION_SIZE) {
-    showResult();
+    endSession();
   } else {
     newProblem();
   }
 }
 
 /***********************
- * RESULT SCREEN
+ * SESSION END
  ***********************/
-function showResult() {
+function endSession() {
+  sessionEnded = true;
+
   qEl.textContent = "📊 Session Complete";
-  aEl.innerHTML = `
-    <p>Correct: ${session.correct} / ${SESSION_SIZE}</p>
+  aEl.innerHTML = "";
 
-    <input id="parentName" placeholder="Parent name">
-    <input id="parentCode" placeholder="Reset code" type="password">
+  const summary = document.createElement("p");
+  summary.textContent = `Correct: ${session.correct} / ${SESSION_SIZE}`;
 
-    <button onclick="resetSession()">Reset Session</button>
-  `;
-  msgEl.textContent = "";
-}
+  const nameInput = document.createElement("input");
+  nameInput.placeholder = "Parent name";
 
-/***********************
- * RESET SESSION
- ***********************/
-function resetSession() {
-  const name = document.getElementById("parentName").value.trim();
-  const code = document.getElementById("parentCode").value.trim();
+  const codeInput = document.createElement("input");
+  codeInput.placeholder = "Reset code";
+  codeInput.type = "password";
 
-  const valid = PARENTS.find(
-    p => p.name === name && p.code === code
-  );
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "Reset Session";
 
-  if (!valid) {
-    alert("Incorrect parent name or code");
-    return;
-  }
+  resetBtn.onclick = () => {
+    const name = nameInput.value.trim();
+    const code = codeInput.value.trim();
 
-  session = { current: 0, correct: 0 };
-  localStorage.removeItem("session");
+    const ok = PARENTS.find(p => p.name === name && p.code === code);
+    if (!ok) {
+      alert("Incorrect parent name or code");
+      return;
+    }
 
-  currentEl.textContent = 0;
-  msgEl.textContent = "✅ Session reset!";
+    session = { current: 0, correct: 0 };
+    sessionEnded = false;
+    localStorage.removeItem("session");
+    currentEl.textContent = 0;
 
-  setTimeout(newProblem, 500);
+    newProblem();
+  };
+
+  aEl.append(summary, nameInput, codeInput, resetBtn);
 }
 
 /***********************
  * START
  ***********************/
 if (session.current >= SESSION_SIZE) {
-  showResult();
+  endSession();
 } else {
   newProblem();
 }

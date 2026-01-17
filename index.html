@@ -6,22 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="app">
-
   <h1>⭐ Harper Super sMath! ⭐</h1>
 
   <p class="goal">
-    Session Progress:
+    Session:
     <span id="current">0</span> / <span id="total">100</span>
   </p>
 
   <div class="themes">
-    <button onclick="setTheme('animals')">🐶</button>
-    <button onclick="setTheme('space')">🚀</button>
-    <button onclick="setTheme('rainbow')">🌈</button>
+    <button data-theme="animals">🐶</button>
+    <button data-theme="space">🚀</button>
+    <button data-theme="rainbow">🌈</button>
   </div>
 
   <div class="card">
@@ -29,7 +27,6 @@
     <div id="answers" class="answers"></div>
     <div id="message" class="message"></div>
   </div>
-
 </div>
 
 <script src="app.js"></script>
