@@ -12,11 +12,11 @@ body {
 }
 
 h1 {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
 .goal {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
 }
 
@@ -54,6 +54,10 @@ h1 {
   border-radius: 16px;
   border: none;
   background: #e0f7fa;
+}
+
+.answers button:disabled {
+  opacity: 0.6;
 }
 
 .message {
