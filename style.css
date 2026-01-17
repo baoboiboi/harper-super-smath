@@ -1,33 +1,31 @@
-body {
-  font-family: Arial;
-  background: #fef6e4;
-  text-align: center;
+h1 {
+  font-size: 26px;
+  margin-bottom: 10px;
 }
 
-.box {
-  max-width: 420px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 14px;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  margin: 6px 0;
+.goal {
   font-size: 18px;
-  border-radius: 10px;
-  border: none;
-  background: #8bd3dd;
-  cursor: pointer;
+  font-weight: bold;
 }
 
-button:hover {
-  background: #6fc1cc;
+.question {
+  font-size: 28px;
+  margin: 20px 0;
 }
 
-#msg {
+.message {
   font-size: 20px;
-  margin-top: 10px;
+  min-height: 30px;
+}
+
+.stars {
+  font-size: 18px;
+}
+
+.themes button {
+  width: auto;
+  display: inline-block;
+  margin: 4px;
+  padding: 8px 12px;
+  font-size: 16px;
 }
