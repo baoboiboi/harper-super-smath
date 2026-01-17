@@ -132,13 +132,9 @@ function updateProgressUI() {
 function loadQuestion() {
   // Stop if daily goal reached
   if (progress[today].done >= DAILY_GOAL) {
-    document.getElementById("question").textContent =
-      "🎉 You finished today’s goal, Harper!";
-    document.getElementById("answers").innerHTML = "";
-    document.getElementById("msg").textContent =
-      "⭐ Amazing work! Come back tomorrow!";
-    return;
-  }
+  showCelebration();
+  return;
+}
 
   const { question, answer } = generateProblem();
 
@@ -178,9 +174,40 @@ function loadQuestion() {
   applyTheme(currentTheme);
 }
 
+
 /***********************
  * INIT
  ***********************/
 updateProgressUI();
 applyTheme(currentTheme);
 loadQuestion();
+function startConfetti() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = Array.from({ length: 150 }).map(() => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    r: Math.random() * 6 + 4,
+    c: `hsl(${Math.random() * 360},100%,60%)`,
+    s: Math.random() * 3 + 2
+  }));
+
+  function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.y += p.s;
+      if (p.y > canvas.height) p.y = -10;
+      ctx.fillStyle = p.c;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(update);
+  }
+
+  update();
+}
