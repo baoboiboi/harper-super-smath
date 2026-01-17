@@ -121,8 +121,14 @@ function endSession() {
   aEl.innerHTML = "";
   msgEl.textContent = "";
 
+  const panel = document.createElement("div");
+  panel.className = "reset-panel";
+
   const summary = document.createElement("p");
   summary.textContent = `Correct: ${session.correct} / ${SESSION_SIZE}`;
+
+  const title = document.createElement("h3");
+  title.textContent = "🔒 Parent Reset";
 
   const nameInput = document.createElement("input");
   nameInput.placeholder = "Parent name";
@@ -152,7 +158,8 @@ function endSession() {
     newProblem();
   };
 
-  aEl.append(summary, nameInput, codeInput, resetBtn);
+  panel.append(summary, title, nameInput, codeInput, resetBtn);
+  aEl.appendChild(panel);
 }
 
 parentResetLink.onclick = () => {

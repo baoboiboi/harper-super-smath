@@ -69,3 +69,39 @@ body {
   margin-top: 10px;
   min-height: 28px;
 }
+
+/* Parent Reset Panel */
+.reset-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.reset-panel h3 {
+  margin: 10px 0 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.reset-panel input {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.reset-panel button {
+  margin-top: 10px;
+  padding: 12px;
+  font-size: 18px;
+  border-radius: 14px;
+  border: none;
+  background: #ffcc80;
+  cursor: pointer;
+}
+
+.reset-panel button:hover {
+  background: #ffb74d;
+}
