@@ -29,3 +29,52 @@ h1 {
   padding: 8px 12px;
   font-size: 16px;
 }
+/* CELEBRATION OVERLAY */
+.celebration {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.celebration-card {
+  background: white;
+  padding: 30px 24px;
+  border-radius: 30px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  animation: pop 0.4s ease;
+}
+
+.celebration-card h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+.celebration-card p {
+  font-size: 18px;
+}
+
+.trophy {
+  font-size: 48px;
+  margin: 16px 0;
+}
+
+@keyframes pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* CONFETTI CANVAS */
+#confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
