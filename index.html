@@ -3,35 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <title>Harper Super sMath!</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="style.css">
 </head>
+<!-- Parent Controls -->
+<div id="parentPanel" class="parent-panel hidden">
+  <div class="parent-card">
+    <h2>👨‍👩‍👧 Parent Settings</h2>
+
+    <label>
+      Daily Goal:
+      <input type="number" id="parentGoal" min="5" max="500">
+    </label>
+
+    <label>
+      Difficulty:
+      <select id="parentDifficulty">
+        <option value="easy">Easy</option>
+        <option value="normal">Normal</option>
+        <option value="hard">Challenge</option>
+      </select>
+    </label>
+
+    <label>
+      Sound:
+      <select id="parentSound">
+        <option value="on">On</option>
+        <option value="off">Off</option>
+      </select>
+    </label>
+
+    <button id="resetProgress">Reset Progress</button>
+    <button id="closeParent">Close</button>
+  </div>
+</div>
 <body>
 
-<div class="app">
+<div class="app-container">
 
-  <h1>⭐ Harper Super sMath! ⭐</h1>
+  <header class="app-header">
+    <h1 id="appTitle">⭐ Harper Super sMath! ⭐</h1>
+    <p class="goal">🎯 Today: <span id="todayDone">0</span> / 100</p>
+  </header>
 
-  <!-- GAME MENU -->
-  <div id="menu" class="screen">
-    <h2>🎮 Choose a Game</h2>
-    <button onclick="startGame('speed')">⚡ Speed Math</button>
-    <button onclick="startGame('target')">🎯 Target Practice</button>
-    <button onclick="startGame('puzzle')">🧩 Puzzle Mode</button>
-    <button onclick="startGame('animals')">🐶 Animal Count</button>
+  <div class="themes">
+    <button onclick="applyTheme('animals')">🐶 Animals</button>
+    <button onclick="applyTheme('space')">🚀 Space</button>
+    <button onclick="applyTheme('rainbow')">🌈 Rainbow</button>
   </div>
 
-  <!-- GAME SCREEN -->
-  <div id="game" class="screen hidden">
-    <h2 id="gameTitle"></h2>
-    <div id="question"></div>
-    <div id="choices"></div>
-    <div id="timer"></div>
-    <div id="message"></div>
-    <button onclick="goMenu()">⬅ Back</button>
+  <div class="card">
+    <div class="mascot">🌈</div>
+    <div id="question" class="question"></div>
+    <div id="answers" class="answers"></div>
+    <div id="msg" class="message"></div>
   </div>
+
+  <footer class="footer">
+    ⭐ Stars: <span id="stars">0</span>
+    <button id="muteBtn">🔊</button>
+  </footer>
 
 </div>
+
+<!-- Celebration -->
+<div id="celebration" class="celebration hidden">
+  <div class="celebration-card">
+    <h2>🎉 AMAZING, HARPER! 🎉</h2>
+    <p>You finished today’s math goal!</p>
+    <div class="trophy">🏆</div>
+    <p>Let’s play again! 🌈</p>
+  </div>
+  <canvas id="confetti"></canvas>
+</div>
+
+<!-- Sounds -->
+<audio id="sound-correct" src="sounds/correct.mp3"></audio>
+<audio id="sound-wrong" src="sounds/wrong.mp3"></audio>
 
 <script src="app.js"></script>
 </body>
