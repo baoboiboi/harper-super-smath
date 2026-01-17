@@ -1,25 +1,18 @@
-* { box-sizing: border-box; }
-
 body {
   margin: 0;
-  font-family: "Comic Sans MS", "Nunito", Arial, sans-serif;
-  background:
-    radial-gradient(circle at 10% 20%, #ffe0f0 0%, transparent 40%),
-    radial-gradient(circle at 90% 10%, #e1f5fe 0%, transparent 40%),
-    radial-gradient(circle at 50% 90%, #fff9c4 0%, transparent 40%),
-    linear-gradient(180deg, #fce4ec, #f3e5f5);
-  min-height: 100vh;
+  font-family: "Comic Sans MS", Arial, sans-serif;
+  background: linear-gradient(#fce4ec, #e3f2fd);
+  text-align: center;
 }
 
-/* Layout */
-.app-container {
+.app {
   max-width: 420px;
   margin: auto;
   padding: 20px;
 }
 
-.app-header {
-  text-align: center;
+h1 {
+  margin-bottom: 5px;
 }
 
 .goal {
@@ -27,181 +20,44 @@ body {
   font-weight: bold;
 }
 
-.themes {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 14px 0;
-}
-
 .themes button {
-  padding: 8px 14px;
-  border-radius: 20px;
+  font-size: 24px;
+  margin: 6px;
   border: none;
   background: white;
-  font-size: 16px;
-  box-shadow: 0 3px 6px rgba(0,0,0,.15);
-  cursor: pointer;
+  border-radius: 50%;
+  padding: 8px 12px;
 }
 
-/* Card */
 .card {
   background: white;
-  border-radius: 28px;
-  padding: 24px 16px;
-  box-shadow: 0 15px 35px rgba(0,0,0,.2);
-  text-align: center;
-}
-
-.mascot {
-  font-size: 48px;
-  margin-bottom: 10px;
-  animation: float 2.5s ease-in-out infinite;
-}
-
-@keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0); }
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.2);
 }
 
 .question {
-  font-size: 34px;
-  font-weight: bold;
+  font-size: 32px;
   margin-bottom: 20px;
 }
 
 .answers {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
 }
 
 .answers button {
-  padding: 16px;
+  padding: 14px;
   font-size: 22px;
-  border-radius: 20px;
+  border-radius: 16px;
   border: none;
   background: #e0f7fa;
-  box-shadow: 0 6px 12px rgba(0,0,0,.2);
-  cursor: pointer;
-  transition: transform .1s;
-}
-
-.answers button:active {
-  transform: scale(0.95);
 }
 
 .message {
   font-size: 20px;
-  min-height: 30px;
-  margin-top: 12px;
-}
-
-.footer {
-  text-align: center;
-  margin-top: 16px;
-  font-size: 18px;
-}
-
-#muteBtn {
-  margin-left: 10px;
-  font-size: 18px;
-  border-radius: 12px;
-  border: none;
-  padding: 6px 10px;
-}
-
-/* Celebration */
-.celebration {
-  position: fixed;
-  inset: 0;
-  background: rgba(255,255,255,0.95);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.hidden { display: none; }
-
-.celebration-card {
-  background: white;
-  padding: 30px;
-  border-radius: 30px;
-  text-align: center;
-  animation: pop .4s ease;
-}
-
-.celebration-card h2 { color: #ff4081; }
-.celebration-card p { color: #4caf50; font-weight: bold; }
-.trophy { font-size: 60px; margin: 16px 0; }
-
-@keyframes pop {
-  from { transform: scale(.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-/* Confetti */
-#confetti {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-/* Parent Panel */
-.parent-panel {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.parent-card {
-  background: white;
-  padding: 24px;
-  border-radius: 20px;
-  width: 300px;
-  text-align: left;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-}
-
-.parent-card h2 {
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.parent-card label {
-  display: block;
-  margin-bottom: 12px;
-  font-size: 16px;
-}
-
-.parent-card input,
-.parent-card select {
-  width: 100%;
-  padding: 6px;
-  margin-top: 4px;
-}
-
-.parent-card button {
-  width: 100%;
   margin-top: 10px;
-  padding: 10px;
-  border-radius: 12px;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-#resetProgress {
-  background: #ff5252;
-  color: white;
-}
-
-#closeParent {
-  background: #4caf50;
-  color: white;
+  min-height: 28px;
 }

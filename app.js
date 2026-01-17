@@ -1,182 +1,89 @@
 const DAILY_GOAL = 100;
 
-/* Date */
+/* DATE */
 function todayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 const today = todayKey();
 
-/* Storage */
-
+/* STORAGE */
 let progress = JSON.parse(localStorage.getItem("progress")) || {};
 let stars = Number(localStorage.getItem("stars")) || 0;
-let soundOn = localStorage.getItem("soundOn") !== "false";
-let currentTheme = localStorage.getItem("theme") || "rainbow";
-let settings = JSON.parse(localStorage.getItem("settings")) || {
-  goal: 100,
-  difficulty: "normal",
-  sound: true
-};
+let theme = localStorage.getItem("theme") || "rainbow";
 
-const DAILY_GOAL = settings.goal;
-soundOn = settings.sound;
 if (!progress[today]) progress[today] = { done: 0 };
 
-/* Themes */
-const themes = {
-  animals: { button: "#FFB74D", mascot: "🐶" },
-  space: { button: "#1B9AAA", mascot: "🚀" },
-  rainbow: { button: "#BA68C8", mascot: "🌈" }
-};
+/* DOM */
+const qEl = document.getElementById("question");
+const aEl = document.getElementById("answers");
+const msgEl = document.getElementById("message");
+const starsEl = document.getElementById("stars");
+const todayEl = document.getElementById("todayDone");
+const goalEl = document.getElementById("goal");
 
-function applyTheme(name) {
-  const t = themes[name];
-  document.querySelector(".mascot").textContent = t.mascot;
-  document.querySelectorAll(".answers button").forEach(b => b.style.background = t.button);
-  currentTheme = name;
+goalEl.textContent = DAILY_GOAL;
+starsEl.textContent = stars;
+todayEl.textContent = progress[today].done;
+
+/* THEME */
+function setTheme(name) {
+  theme = name;
   localStorage.setItem("theme", name);
+  document.body.style.background =
+    name === "animals" ? "linear-gradient(#fff3e0,#ffe0b2)" :
+    name === "space" ? "linear-gradient(#0d47a1,#1976d2)" :
+    "linear-gradient(#fce4ec,#e3f2fd)";
 }
+setTheme(theme);
 
-/* Sounds */
-const correctSound = document.getElementById("sound-correct");
-const wrongSound = document.getElementById("sound-wrong");
-const muteBtn = document.getElementById("muteBtn");
-
-muteBtn.onclick = () => {
-  soundOn = !soundOn;
-  localStorage.setItem("soundOn", soundOn);
-  muteBtn.textContent = soundOn ? "🔊" : "🔇";
-};
-muteBtn.textContent = soundOn ? "🔊" : "🔇";
-
-/* Utils */
+/* UTIL */
 function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-/* Math */
-function generateProblem() {
-  const level = settings.difficulty;
-  let a, b, ans, op;
+/* MATH */
+function newProblem() {
+  let type = rand(1, 4);
+  let a, b, ans, text;
 
-  if (level === "easy") {
-    a = rand(1, 20);
-    b = rand(1, 20);
-    ans = a + b;
-    op = "+";
-  }
+  if (type === 1) { a = rand(10, 99); b = rand(10, 99); ans = a + b; text = `${a} + ${b}`; }
+  if (type === 2) { a = rand(30, 99); b = rand(10, a); ans = a - b; text = `${a} - ${b}`; }
+  if (type === 3) { a = rand(2, 9); b = rand(2, 9); ans = a * b; text = `${a} × ${b}`; }
+  if (type === 4) { b = rand(2, 9); ans = rand(2, 9); a = b * ans; text = `${a} ÷ ${b}`; }
 
-  if (level === "normal") {
-    const type = rand(1, 4);
-    if(type===1){a=rand(10,99);b=rand(10,99);ans=a+b;op="+";}
-    if(type===2){a=rand(30,99);b=rand(10,a);ans=a-b;op="-";}
-    if(type===3){a=rand(2,9);b=rand(2,9);ans=a*b;op="×";}
-    if(type===4){b=rand(2,9);ans=rand(2,9);a=b*ans;op="÷";}
-  }
-
-  if (level === "hard") {
-    a = rand(20, 200);
-    b = rand(10, 20);
-    ans = a * b;
-    op = "×";
-  }
-
-  return { q: `${a} ${op} ${b} = ?`, a: ans };
+  qEl.textContent = `${text} = ?`;
+  showAnswers(ans);
 }
 
-function choices(ans) {
-  const set = new Set([ans]);
-  while(set.size < 4) set.add(ans + rand(-10,10));
-  return [...set].sort(() => Math.random() - 0.5);
-}
+/* ANSWERS */
+function showAnswers(correct) {
+  aEl.innerHTML = "";
+  msgEl.textContent = "";
 
-/* Celebration */
-function showCelebration() {
-  celebration.classList.remove("hidden");
-  startConfetti();
-  setTimeout(() => {
-    celebration.classList.add("hidden");
-    progress[today].done = 0;
-    localStorage.setItem("progress", JSON.stringify(progress));
-    load();
-  }, 5000);
-}
+  let opts = new Set([correct]);
+  while (opts.size < 4) opts.add(correct + rand(-10, 10));
 
-/* Confetti */
-function startConfetti() {
-  const ctx = confetti.getContext("2d");
-  confetti.width = innerWidth;
-  confetti.height = innerHeight;
-  const pcs = Array.from({length:150},()=>({
-    x:Math.random()*confetti.width,
-    y:Math.random()*confetti.height,
-    r:Math.random()*6+4,
-    c:`hsl(${Math.random()*360},100%,60%)`,
-    s:Math.random()*3+2
-  }));
-  (function draw(){
-    ctx.clearRect(0,0,confetti.width,confetti.height);
-    pcs.forEach(p=>{
-      p.y+=p.s;
-      if(p.y>confetti.height)p.y=-10;
-      ctx.fillStyle=p.c;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  })();
-}
-
-/* Main */
-function load() {
-  if (progress[today].done >= DAILY_GOAL) {
-    showCelebration();
-    return;
-  }
-
-  const { q, a } = generateProblem();
-  question.textContent = q;
-  msg.textContent = "";
-  answers.innerHTML = "";
-
-  choices(a).forEach(c => {
-    const b = document.createElement("button");
-    b.textContent = c;
-    b.onclick = () => {
-      if (c === a) {
-        if (soundOn) { correctSound.currentTime = 0; correctSound.play(); }
+  [...opts].sort(() => Math.random() - 0.5).forEach(v => {
+    let btn = document.createElement("button");
+    btn.textContent = v;
+    btn.onclick = () => {
+      if (v === correct) {
         stars++;
         progress[today].done++;
         localStorage.setItem("stars", stars);
         localStorage.setItem("progress", JSON.stringify(progress));
-        updateUI();
-        load();
+        starsEl.textContent = stars;
+        todayEl.textContent = progress[today].done;
+        msgEl.textContent = "🎉 Great job!";
+        setTimeout(newProblem, 500);
       } else {
-        if (soundOn) { wrongSound.currentTime = 0; wrongSound.play(); }
-        msg.textContent = "💛 Try again!";
+        msgEl.textContent = "💛 Try again!";
       }
     };
-    answers.appendChild(b);
+    aEl.appendChild(btn);
   });
-
-  applyTheme(currentTheme);
 }
 
-function updateUI() {
-  starsEl.textContent = stars;
-  todayDone.textContent = progress[today].done;
-}
-
-/* DOM */
-const question = document.getElementById("question");
-const answers = document.getElementById("answers");
-const msg = document.getElementById("msg");
-const starsEl = document.getElementById("stars");
-const todayDone = document.getElementById("todayDone");
-const celebration = document.getElementById("celebration");
-const confetti = document.getElementById("confetti");
-
-updateUI();
-load();
+/* START */
+newProblem();
