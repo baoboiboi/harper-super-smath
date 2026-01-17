@@ -1,31 +1,100 @@
-h1 {
+/* RESET */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Comic Sans MS", "Nunito", Arial, sans-serif;
+  background: linear-gradient(180deg, #fce4ec, #f3e5f5);
+  min-height: 100vh;
+}
+
+/* APP CONTAINER */
+.app-container {
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* HEADER */
+.app-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.app-header h1 {
   font-size: 26px;
-  margin-bottom: 10px;
+  margin: 0;
 }
 
 .goal {
   font-size: 18px;
   font-weight: bold;
+  margin-top: 6px;
 }
 
-.question {
-  font-size: 28px;
-  margin: 20px 0;
-}
-
-.message {
-  font-size: 20px;
-  min-height: 30px;
-}
-
-.stars {
-  font-size: 18px;
+/* THEMES */
+.themes {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
 .themes button {
-  width: auto;
-  display: inline-block;
-  margin: 4px;
-  padding: 8px 12px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: none;
   font-size: 16px;
+  background: #ffffff;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+/* MAIN CARD */
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 24px 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  text-align: center;
+}
+
+/* QUESTION */
+.question {
+  font-size: 34px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* ANSWERS */
+.answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.answers button {
+  padding: 16px;
+  font-size: 20px;
+  border-radius: 18px;
+  border: none;
+  background: #e0f7fa;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+  cursor: pointer;
+}
+
+/* FEEDBACK */
+.message {
+  margin-top: 18px;
+  font-size: 20px;
+  min-height: 28px;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 18px;
 }
