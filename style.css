@@ -1,0 +1,33 @@
+body {
+  font-family: Arial;
+  background: #fef6e4;
+  text-align: center;
+}
+
+.box {
+  max-width: 420px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin: 6px 0;
+  font-size: 18px;
+  border-radius: 10px;
+  border: none;
+  background: #8bd3dd;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #6fc1cc;
+}
+
+#msg {
+  font-size: 20px;
+  margin-top: 10px;
+}
