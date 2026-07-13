@@ -35,6 +35,13 @@ class LessonController extends Controller
             ->get()
             ->groupBy('typing_exercise_id');
 
+        $drawingPrompts = $lesson->drawingPrompts()->orderBy('order')->get();
+
+        $artworkCountsByPrompt = $childProfile->artworks()
+            ->whereIn('drawing_prompt_id', $drawingPrompts->pluck('id'))
+            ->get()
+            ->groupBy('drawing_prompt_id');
+
         return Inertia::render('Child/LessonShow', [
             'lesson' => $lesson->only(['id', 'title', 'description', 'learning_objective', 'instructions', 'difficulty', 'points_available', 'estimated_minutes']),
             'activities' => $activities->map(function ($activity) use ($attempts) {
@@ -68,6 +75,13 @@ class LessonController extends Controller
                     'best_accuracy' => $sessions->max('accuracy_percent'),
                 ];
             }),
+            'drawingPrompts' => $drawingPrompts->map(fn ($prompt) => [
+                'id' => $prompt->id,
+                'title' => $prompt->title,
+                'type' => $prompt->type->value,
+                'points' => $prompt->points,
+                'attempts_count' => $artworkCountsByPrompt->get($prompt->id, collect())->count(),
+            ]),
         ]);
     }
 }

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-"Harper Super sMath!" is being converted from a single-page arithmetic flashcard game into a full children's learning platform (math, typing, drawing, educational games, progress tracking, parent/teacher/school supervision). The project is mid-conversion, currently at the end of **Phase 5 (Typing)** of a 10-phase roadmap: auth, roles/permissions, parent accounts, child profiles, dashboard shells, the curriculum data model + admin CMS, a working math quiz/grading engine, and a working typing-practice engine all exist. Drawing, games, rewards/mastery, teacher/school tools, and billing are further out (see phases 6–10 below).
+"Harper Super sMath!" is being converted from a single-page arithmetic flashcard game into a full children's learning platform (math, typing, drawing, educational games, progress tracking, parent/teacher/school supervision). The project is mid-conversion, currently at the end of **Phase 6 (Drawing & Creativity)** of a 10-phase roadmap: auth, roles/permissions, parent accounts, child profiles, dashboard shells, the curriculum data model + admin CMS, a working math quiz/grading engine, a working typing-practice engine, and a working drawing/tracing engine with a private per-child gallery all exist. Games, rewards/mastery, teacher/school tools, and billing are further out (see phases 7–10 below).
 
 The original static game's source is preserved under `legacy/` (`index.html`, `app.js`, `style.css`, `sounds/`) for reference — it is no longer served by the app. `CNAME` (GitHub Pages, `fli.ink`) is likewise stale: this app requires a PHP + MySQL host and can no longer deploy as a static site as-is.
 
@@ -99,6 +99,16 @@ Answer options are shuffled server-side per request and only `{id, label}` is se
 
 `resources/js/Components/VirtualKeyboard.tsx` highlights the next expected character; it only knows about lowercase letters, digits, and space — punctuation/shift state isn't modeled, matching the current `target_text` content the CMS actually authors (letters/words/sentences, not symbols).
 
+### Drawing module
+
+`Artwork`/`DrawingPrompt` follow the same split as typing: `DrawingPrompt` is CMS-authored guided content hung off a `Lesson` (trace-the-letter/number/shape today; `coloring_page` is modeled in `App\Enums\DrawingPromptType` but deliberately not playable — see below). `Artwork` is what a child actually saves, and it's **not lesson-bound** — free drawing (`/child/draw`) creates an `Artwork` with `drawing_prompt_id = null`, so don't assume every artwork traces back to curriculum content.
+
+**Only `trace_letter`, `trace_number`, and `trace_shape` are playable.** `coloring_page` needs real pre-made line-art image assets to color in — that's a content-authoring problem (someone has to draw/license the artwork), not something more code fixes, so `Child\DrawingPlayController::show()` 404s it and `LessonShow.tsx` shows "Coming soon", the same treatment as the math engine's unplayable question formats and typing's absent sticker/coloring-page asset library.
+
+**`Canvas.tsx` is the one shared drawing engine**, reused by both free draw (`Child/Draw.tsx`) and guided tracing (`Child/DrawingPlay.tsx`) — it takes an optional `templateType`/`templateText` pair and renders that as a faint background *before* the undo/redo history starts recording, so "Clear" and "Undo All" return to the template (or blank canvas), never to something the child can't get back to. It exposes a single imperative `exportImage()` (via `forwardRef`/`useImperativeHandle`) that the parent page calls once, on Save — there's no per-stroke server communication, same reasoning as the typing engine's one-shot submission.
+
+**Known privacy gap, not yet hardened**: saved artwork PNGs live on Laravel's public storage disk (`storage/app/public/artwork/{child_profile_id}/{uuid}.png`, served via the `public/storage` symlink) with UUID filenames, which makes them unlisted/hard to guess but **not actually access-controlled** — anyone with a direct URL can view a file without authentication. This falls short of Section 18's "no public artwork by default" requirement in the strict sense. Treat this the same as the placeholder Terms/Privacy pages: acceptable to ship for local development, but flag it if this app is heading toward a real deployment — the fix is a signed/authenticated streaming route instead of the public disk.
+
 ### Audit logging
 
 `AuditLog::record(string $action, ?Model $subject, array $metadata, ?User $user)` is a static helper that writes to the polymorphic `audit_logs` table. Call it at points that change account/access state (see `ChildProfileController` and `Admin\UserManagementController` for examples) rather than adding ad hoc logging elsewhere.
@@ -114,11 +124,12 @@ Answer options are shuffled server-side per request and only `{id, label}` is se
 - `resources/js/Components/Card.tsx`, `EmptyState.tsx` — shared alongside Breeze's existing `PrimaryButton`/`Modal`/`TextInput`/etc.
 - `app/Services/QuestionGrader.php` — the only place that should know how to grade a `Question`; don't duplicate its choice-vs-value branching logic elsewhere.
 - `app/Services/TypingGrader.php` — the only place that should know how to grade a typing attempt (accuracy/WPM/key stats).
-- `resources/js/Pages/Child/TypingPlay.tsx` + `resources/js/Components/VirtualKeyboard.tsx` — the one client-heavy, stateful page in an otherwise mostly-server-driven Inertia app; see the Typing module section above for why.
+- `resources/js/Pages/Child/TypingPlay.tsx` + `resources/js/Components/VirtualKeyboard.tsx` — the one other client-heavy, stateful page besides `Canvas.tsx`/drawing, in an otherwise mostly-server-driven Inertia app; see the Typing module section above for why.
+- `resources/js/Components/Canvas.tsx` — the shared drawing engine; see the Drawing module section above before adding a second canvas implementation anywhere.
 
 ## Working conventions
 
-- This repo is being built incrementally against a 10-phase roadmap (audit → foundation → curriculum → math → typing → drawing → games → progress/rewards → parent/teacher tools → subscriptions/launch). Foundation, curriculum, mathematics, and typing (phases 2–5) are done. Don't jump ahead into a later phase's scope (e.g. don't build drawing/game engines, the rewards/mastery/streak system, teacher/school tools, or billing) without it being explicitly requested.
+- This repo is being built incrementally against a 10-phase roadmap (audit → foundation → curriculum → math → typing → drawing → games → progress/rewards → parent/teacher tools → subscriptions/launch). Foundation, curriculum, mathematics, typing, and drawing (phases 2–6) are done. Don't jump ahead into a later phase's scope (e.g. don't build game engines, the rewards/mastery/streak system, teacher/school tools, or billing) without it being explicitly requested.
 - Follow existing patterns before introducing new ones: Form Requests for validation + authorization (`authorize()` calls `$user->can(...)`), Policies for model-level authorization, route-level `role:`/`permission:` middleware for section-level gating.
 - Don't hardcode role or permission name strings in more than one place if avoidable — `RoleAndPermissionSeeder` is the source of truth for what roles/permissions exist.
 - Use `docker compose exec laravel.test ...` for all artisan/composer/npm commands — nothing runs on the host.

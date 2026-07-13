@@ -117,6 +117,15 @@ export default function Dashboard({
                                     >
                                         Play
                                     </Link>
+                                    <Link
+                                        href={route(
+                                            'parent.children.gallery',
+                                            child.id,
+                                        )}
+                                        className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-50 dark:bg-gray-900"
+                                    >
+                                        Gallery
+                                    </Link>
                                     <button
                                         type="button"
                                         onClick={() => {

@@ -21,6 +21,14 @@ type TypingExercise = {
     best_accuracy: number | null;
 };
 
+type DrawingPrompt = {
+    id: number;
+    title: string;
+    type: string;
+    points: number;
+    attempts_count: number;
+};
+
 const PLAYABLE_TYPES = [
     'multiple_choice',
     'number_input',
@@ -29,6 +37,8 @@ const PLAYABLE_TYPES = [
     'visual_counting',
     'word_problem',
 ];
+
+const PLAYABLE_DRAWING_TYPES = ['trace_letter', 'trace_number', 'trace_shape'];
 
 const STATUS_LABEL: Record<Activity['status'], string> = {
     not_started: 'Start',
@@ -40,6 +50,7 @@ export default function LessonShow({
     lesson,
     activities,
     typingExercises,
+    drawingPrompts,
 }: {
     lesson: {
         id: number;
@@ -51,6 +62,7 @@ export default function LessonShow({
     };
     activities: Activity[];
     typingExercises: TypingExercise[];
+    drawingPrompts: DrawingPrompt[];
 }) {
     return (
         <ChildLayout>
@@ -135,6 +147,45 @@ export default function LessonShow({
                             </Link>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {drawingPrompts.length > 0 && (
+                <div className="mt-8 space-y-3">
+                    <h2 className="text-left text-sm font-semibold uppercase text-gray-400">
+                        🎨 Drawing
+                    </h2>
+                    {drawingPrompts.map((prompt) => {
+                        const playable = PLAYABLE_DRAWING_TYPES.includes(prompt.type);
+
+                        return (
+                            <div
+                                key={prompt.id}
+                                className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm"
+                            >
+                                <div className="text-left">
+                                    <p className="font-bold text-gray-800">
+                                        {prompt.attempts_count > 0 && '✅ '}
+                                        {prompt.title}
+                                    </p>
+                                    <p className="text-sm text-gray-500">{prompt.points} pts</p>
+                                </div>
+
+                                {playable ? (
+                                    <Link
+                                        href={route('child.drawing-prompts.play', prompt.id)}
+                                        className="rounded-full bg-pink-600 px-5 py-2 font-semibold text-white hover:bg-pink-700"
+                                    >
+                                        {prompt.attempts_count > 0 ? 'Draw Again' : 'Start'}
+                                    </Link>
+                                ) : (
+                                    <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-400">
+                                        Coming soon
+                                    </span>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </ChildLayout>

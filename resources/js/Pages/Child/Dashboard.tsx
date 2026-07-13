@@ -48,6 +48,21 @@ export default function Dashboard({
                     />
                 )}
             </div>
+
+            <div className="mt-6 flex justify-center gap-3">
+                <Link
+                    href={route('child.draw')}
+                    className="rounded-full bg-pink-100 px-6 py-3 font-semibold text-pink-700 hover:bg-pink-200"
+                >
+                    🎨 Draw
+                </Link>
+                <Link
+                    href={route('child.gallery')}
+                    className="rounded-full bg-white px-6 py-3 font-semibold text-gray-600 shadow-sm hover:bg-gray-50"
+                >
+                    🖼️ My Gallery
+                </Link>
+            </div>
         </ChildLayout>
     );
 }

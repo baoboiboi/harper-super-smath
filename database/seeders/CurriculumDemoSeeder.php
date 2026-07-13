@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\ContentStatus;
 use App\Models\Activity;
 use App\Models\Course;
+use App\Models\DrawingPrompt;
 use App\Models\GradeLevel;
 use App\Models\Lesson;
 use App\Models\Question;
@@ -135,6 +136,54 @@ class CurriculumDemoSeeder extends Seeder
             'title' => 'Home Row Warm-Up',
             'target_text' => 'asdf jkl; asdf jkl;',
             'target_keys' => 'asdfjkl;',
+            'points' => 10,
+        ]);
+
+        $drawing = Subject::create([
+            'name' => 'Drawing & Creativity',
+            'icon' => '🎨',
+            'description' => 'Free drawing, tracing, and creative practice.',
+        ]);
+
+        $lettersSkill = Skill::create([
+            'subject_id' => $drawing->id,
+            'grade_level_id' => $grade1->id,
+            'name' => 'Letters',
+            'description' => 'Tracing the shapes of letters.',
+        ]);
+
+        $drawingCourse = Course::create([
+            'skill_id' => $lettersSkill->id,
+            'title' => 'Tracing Foundations',
+            'status' => ContentStatus::Published,
+            'published_at' => now(),
+        ]);
+
+        $drawingUnit = Unit::create([
+            'course_id' => $drawingCourse->id,
+            'title' => 'Tracing Letters',
+            'status' => ContentStatus::Published,
+            'published_at' => now(),
+        ]);
+
+        $drawingLesson = Lesson::create([
+            'unit_id' => $drawingUnit->id,
+            'title' => 'Trace the Letter A',
+            'description' => 'Trace over the letter A, then try drawing it on your own.',
+            'learning_objective' => 'Recognize and trace the letter A.',
+            'difficulty' => 1,
+            'estimated_minutes' => 5,
+            'points_available' => 10,
+            'status' => ContentStatus::Published,
+            'published_at' => now(),
+        ]);
+
+        DrawingPrompt::create([
+            'lesson_id' => $drawingLesson->id,
+            'type' => 'trace_letter',
+            'title' => 'Trace the Letter A',
+            'instructions' => 'Follow the faint letter with your pencil.',
+            'template_text' => 'A',
             'points' => 10,
         ]);
     }

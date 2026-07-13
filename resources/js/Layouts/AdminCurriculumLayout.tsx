@@ -10,6 +10,7 @@ const tabs = [
     { href: 'admin.curriculum.units.index', label: 'Units' },
     { href: 'admin.curriculum.lessons.index', label: 'Lessons' },
     { href: 'admin.curriculum.typing-exercises.index', label: 'Typing Exercises' },
+    { href: 'admin.curriculum.drawing-prompts.index', label: 'Drawing Prompts' },
 ];
 
 export default function AdminCurriculumLayout({

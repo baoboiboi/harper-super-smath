@@ -78,6 +78,14 @@ class Lesson extends Model
     }
 
     /**
+     * @return HasMany<DrawingPrompt, $this>
+     */
+    public function drawingPrompts(): HasMany
+    {
+        return $this->hasMany(DrawingPrompt::class);
+    }
+
+    /**
      * Lessons visible to children: the lesson itself and its unit and
      * course must all be published.
      *

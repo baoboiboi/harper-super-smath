@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Curriculum\ActivityController;
 use App\Http\Controllers\Admin\Curriculum\CourseController;
+use App\Http\Controllers\Admin\Curriculum\DrawingPromptController;
 use App\Http\Controllers\Admin\Curriculum\GradeLevelController;
 use App\Http\Controllers\Admin\Curriculum\LessonController;
 use App\Http\Controllers\Admin\Curriculum\QuestionController;
@@ -13,12 +14,15 @@ use App\Http\Controllers\Admin\Curriculum\UnitController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Child\ActivityPlayController;
+use App\Http\Controllers\Child\ArtworkController;
 use App\Http\Controllers\Child\DashboardController as ChildDashboardController;
+use App\Http\Controllers\Child\DrawingPlayController;
 use App\Http\Controllers\Child\LessonController as ChildLessonController;
 use App\Http\Controllers\Child\SubjectController as ChildSubjectController;
 use App\Http\Controllers\Child\TypingPlayController;
 use App\Http\Controllers\ChildProfileController;
 use App\Http\Controllers\ChildSessionController;
+use App\Http\Controllers\Parent\ArtworkController as ParentArtworkController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicPageController;
@@ -64,6 +68,7 @@ Route::middleware(['auth', 'verified', 'role:parent'])->prefix('parent')->name('
     Route::post('/children/{childProfile}/enter', [ChildSessionController::class, 'store'])
         ->middleware('throttle:10,1')
         ->name('children.authenticate');
+    Route::get('/children/{childProfile}/gallery', [ParentArtworkController::class, 'index'])->name('children.gallery');
 });
 
 Route::middleware(['auth', 'verified', 'child.active'])->prefix('child')->name('child.')->group(function () {
@@ -75,6 +80,11 @@ Route::middleware(['auth', 'verified', 'child.active'])->prefix('child')->name('
     Route::post('/activities/{activity}/answer', [ActivityPlayController::class, 'answer'])->name('activities.answer');
     Route::get('/typing-exercises/{typingExercise}/play', [TypingPlayController::class, 'show'])->name('typing-exercises.play');
     Route::post('/typing-exercises/{typingExercise}/complete', [TypingPlayController::class, 'complete'])->name('typing-exercises.complete');
+    Route::get('/draw', [ArtworkController::class, 'create'])->name('draw');
+    Route::get('/gallery', [ArtworkController::class, 'index'])->name('gallery');
+    Route::post('/artworks', [ArtworkController::class, 'store'])->name('artworks.store');
+    Route::delete('/artworks/{artwork}', [ArtworkController::class, 'destroy'])->name('artworks.destroy');
+    Route::get('/drawing-prompts/{drawingPrompt}/play', [DrawingPlayController::class, 'show'])->name('drawing-prompts.play');
 });
 
 Route::middleware(['auth', 'verified'])->post('/child/exit', [ChildSessionController::class, 'destroy'])->name('child.exit');
@@ -138,6 +148,11 @@ Route::middleware(['auth', 'verified', 'permission:admin.access'])->prefix('admi
         Route::post('/typing-exercises', [TypingExerciseController::class, 'store'])->name('typing-exercises.store');
         Route::patch('/typing-exercises/{typingExercise}', [TypingExerciseController::class, 'update'])->name('typing-exercises.update');
         Route::delete('/typing-exercises/{typingExercise}', [TypingExerciseController::class, 'destroy'])->name('typing-exercises.destroy');
+
+        Route::get('/drawing-prompts', [DrawingPromptController::class, 'index'])->name('drawing-prompts.index');
+        Route::post('/drawing-prompts', [DrawingPromptController::class, 'store'])->name('drawing-prompts.store');
+        Route::patch('/drawing-prompts/{drawingPrompt}', [DrawingPromptController::class, 'update'])->name('drawing-prompts.update');
+        Route::delete('/drawing-prompts/{drawingPrompt}', [DrawingPromptController::class, 'destroy'])->name('drawing-prompts.destroy');
     });
 });
 

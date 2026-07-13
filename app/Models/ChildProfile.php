@@ -48,6 +48,14 @@ class ChildProfile extends Model
         return $this->hasMany(TypingSession::class);
     }
 
+    /**
+     * @return HasMany<Artwork, $this>
+     */
+    public function artworks(): HasMany
+    {
+        return $this->hasMany(Artwork::class);
+    }
+
     public function setPin(string $pin): void
     {
         $this->pin_hash = Hash::make($pin);
