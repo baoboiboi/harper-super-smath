@@ -34,6 +34,7 @@ class RoleAndPermissionSeeder extends Seeder
             'admin.manage-users',
             'admin.manage-roles',
             'admin.manage-settings',
+            'admin.manage-curriculum',
         ];
 
         foreach ($permissions as $permission) {
@@ -46,6 +47,9 @@ class RoleAndPermissionSeeder extends Seeder
         foreach (self::ADMIN_ROLES as $roleName) {
             Role::findOrCreate($roleName)->syncPermissions(['admin.access']);
         }
+
+        Role::findOrCreate('content_admin')->givePermissionTo('admin.manage-curriculum');
+        Role::findOrCreate('curriculum_manager')->givePermissionTo('admin.manage-curriculum');
 
         Role::findOrCreate('parent');
         Role::findOrCreate('teacher');

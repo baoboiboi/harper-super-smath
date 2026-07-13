@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-"Harper Super sMath!" is being converted from a single-page arithmetic flashcard game into a full children's learning platform (math, typing, drawing, educational games, progress tracking, parent/teacher/school supervision). The project is mid-conversion, currently at the end of **Phase 2 (Foundation)** of a 10-phase roadmap: auth, roles/permissions, parent accounts, child profiles, and dashboard shells exist; curriculum content, typing, drawing, games, rewards, and billing are not yet built (see phases 3–10 below).
+"Harper Super sMath!" is being converted from a single-page arithmetic flashcard game into a full children's learning platform (math, typing, drawing, educational games, progress tracking, parent/teacher/school supervision). The project is mid-conversion, currently at the end of **Phase 3 (Curriculum System)** of a 10-phase roadmap: auth, roles/permissions, parent accounts, child profiles, dashboard shells, and the curriculum data model + admin CMS all exist; the curriculum content is **not yet consumable by children** — Phase 4 (Mathematics) is what wires lessons/questions into the actual child-facing quiz/grading engine. Typing, drawing, games, rewards, and billing are further out (see phases 4–10 below).
 
 The original static game's source is preserved under `legacy/` (`index.html`, `app.js`, `style.css`, `sounds/`) for reference — it is no longer served by the app. `CNAME` (GitHub Pages, `fli.ink`) is likewise stale: this app requires a PHP + MySQL host and can no longer deploy as a static site as-is.
 
@@ -59,6 +59,19 @@ Per the product spec, children don't get email addresses or independent Laravel 
 
 `ChildProfilePolicy` enforces the same ownership rule (`parent_id === $user->id`) for direct model actions (view/update/delete), independent of the session middleware.
 
+### Curriculum data model
+
+The content hierarchy is `Subject → Skill (× GradeLevel) → Course → Unit → Lesson → Activity → Question → QuestionOption`, matching the product spec's learning-path structure. All nine tables live in `database/migrations/2026_07_13_0519*`. Notes:
+
+- `Course`, `Unit`, and `Lesson` carry a `status` column cast to the `App\Enums\ContentStatus` enum (`draft` / `under_review` / `published` / `archived`). Because MySQL's column `default('draft')` isn't reflected on an in-memory model until it's reloaded, these three models also set a PHP-level `protected $attributes = ['status' => 'draft', ...]` — don't remove that when touching these models, or `new Course()->status` will be `null` instead of the enum before the first save.
+- `Activity.type` and `Question.type` both use `App\Enums\QuestionFormat` (the ten formats from the product spec: multiple_choice, number_input, drag_drop, match_pairs, sort, select_image, fill_blank, visual_counting, timed_challenge, word_problem). Choice-based formats store correctness via `QuestionOption.is_correct`; other formats use `Question.correct_answer` (a flexible JSON column — Phase 3 only stores it, Phase 4's grading engine is what interprets it).
+- Slugs (`Subject`, `GradeLevel`, `Skill`, `Course`, `Unit`, `Lesson`) are auto-generated and de-duplicated by `app/Models/Concerns/HasSlug.php` on create — never accept `slug` as user input in a form.
+- Deleting a `Subject`/`Skill`/`Course`/`Unit`/`Lesson` cascades down the whole hierarchy (FK `cascadeOnDelete`) — the admin UI confirms this in its delete prompts; don't add soft-deletes here without reconsidering that cascade.
+
+### Admin curriculum CMS
+
+`app/Http/Controllers/Admin/Curriculum/*` + `resources/js/Pages/Admin/Curriculum/*`, gated by the `admin.manage-curriculum` permission (route group in `routes/web.php`). Subjects/GradeLevels/Skills/Courses/Units/Lessons are flat list-plus-modal CRUD pages (parent entities referenced via a `<select>`, not a nested drill-down UI). Lessons additionally link to `LessonEditor.tsx`, a dedicated page for managing a lesson's Activities → Questions → Options inline — that's the one deeply-nested editing surface in the CMS; don't try to replicate the modal-CRUD pattern for those three levels, the nesting doesn't fit it.
+
 ### Audit logging
 
 `AuditLog::record(string $action, ?Model $subject, array $metadata, ?User $user)` is a static helper that writes to the polymorphic `audit_logs` table. Call it at points that change account/access state (see `ChildProfileController` and `Admin\UserManagementController` for examples) rather than adding ad hoc logging elsewhere.
@@ -69,12 +82,13 @@ Per the product spec, children don't get email addresses or independent Laravel 
 - `resources/js/Layouts/PublicLayout.tsx` — marketing/public pages nav+footer
 - `resources/js/Layouts/ChildLayout.tsx` — minimal, large-button child-facing chrome (no admin nav, "Switch Profile" exit)
 - `resources/js/Layouts/AuthenticatedLayout.tsx` — Breeze default, reused for Parent and Admin dashboards
+- `resources/js/Layouts/AdminCurriculumLayout.tsx` — wraps `AuthenticatedLayout` with the Subjects/Grade Levels/Skills/Courses/Units/Lessons sub-nav; use it for any new curriculum admin page
 - `resources/js/Pages/Public/*` — one component per public route in `routes/web.php` (Home, About, HowItWorks, Subjects, Pricing, Safety, Faq, Contact, Terms, Privacy); content is static placeholder copy pending real content/legal review
 - `resources/js/Components/Card.tsx`, `EmptyState.tsx` — shared alongside Breeze's existing `PrimaryButton`/`Modal`/`TextInput`/etc.
 
 ## Working conventions
 
-- This repo is being built incrementally against a 10-phase roadmap (audit → foundation → curriculum → math → typing → drawing → games → progress/rewards → parent/teacher tools → subscriptions/launch). Don't jump ahead into a later phase's scope (e.g. don't build curriculum/lesson content, typing/drawing/game engines, or billing) without it being explicitly requested — the foundation phase intentionally leaves those as empty states.
+- This repo is being built incrementally against a 10-phase roadmap (audit → foundation → curriculum → math → typing → drawing → games → progress/rewards → parent/teacher tools → subscriptions/launch). Foundation and curriculum (phases 2–3) are done. Don't jump ahead into a later phase's scope (e.g. don't build the child-facing math/quiz engine, typing/drawing/game engines, or billing) without it being explicitly requested.
 - Follow existing patterns before introducing new ones: Form Requests for validation + authorization (`authorize()` calls `$user->can(...)`), Policies for model-level authorization, route-level `role:`/`permission:` middleware for section-level gating.
 - Don't hardcode role or permission name strings in more than one place if avoidable — `RoleAndPermissionSeeder` is the source of truth for what roles/permissions exist.
 - Use `docker compose exec laravel.test ...` for all artisan/composer/npm commands — nothing runs on the host.

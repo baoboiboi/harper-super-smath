@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Test Parent',
                 'email' => 'parent@example.com',
             ])->assignRole('parent');
+
+            $this->call(CurriculumDemoSeeder::class);
         }
     }
 }

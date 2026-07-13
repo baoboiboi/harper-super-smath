@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Http\Requests\Curriculum;
+
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+
+class GradeLevelRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()?->can('admin.manage-curriculum') ?? false;
+    }
+
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:100'],
+            'order' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
+        ];
+    }
+}
