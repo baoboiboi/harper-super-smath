@@ -11,6 +11,7 @@ use App\Models\Question;
 use App\Models\QuestionOption;
 use App\Models\Skill;
 use App\Models\Subject;
+use App\Models\TypingExercise;
 use App\Models\Unit;
 use Illuminate\Database\Seeder;
 
@@ -88,5 +89,53 @@ class CurriculumDemoSeeder extends Seeder
                 'is_correct' => $value === 3,
             ]);
         }
+
+        $typing = Subject::create([
+            'name' => 'Typing',
+            'icon' => '⌨️',
+            'description' => 'Learn to type letters, words, and sentences with confidence.',
+        ]);
+
+        $homeRowSkill = Skill::create([
+            'subject_id' => $typing->id,
+            'grade_level_id' => $grade1->id,
+            'name' => 'Home Row',
+            'description' => 'Finding and typing from the home row keys.',
+        ]);
+
+        $typingCourse = Course::create([
+            'skill_id' => $homeRowSkill->id,
+            'title' => 'Typing Foundations',
+            'status' => ContentStatus::Published,
+            'published_at' => now(),
+        ]);
+
+        $typingUnit = Unit::create([
+            'course_id' => $typingCourse->id,
+            'title' => 'Home Row Keys',
+            'status' => ContentStatus::Published,
+            'published_at' => now(),
+        ]);
+
+        $typingLesson = Lesson::create([
+            'unit_id' => $typingUnit->id,
+            'title' => 'Home Row Practice',
+            'description' => 'Practice typing the home row keys without looking at the keyboard.',
+            'learning_objective' => 'Type the home row keys accurately.',
+            'difficulty' => 1,
+            'estimated_minutes' => 5,
+            'points_available' => 10,
+            'status' => ContentStatus::Published,
+            'published_at' => now(),
+        ]);
+
+        TypingExercise::create([
+            'lesson_id' => $typingLesson->id,
+            'type' => 'home_row',
+            'title' => 'Home Row Warm-Up',
+            'target_text' => 'asdf jkl; asdf jkl;',
+            'target_keys' => 'asdfjkl;',
+            'points' => 10,
+        ]);
     }
 }

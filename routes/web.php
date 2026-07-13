@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Curriculum\QuestionController;
 use App\Http\Controllers\Admin\Curriculum\QuestionOptionController;
 use App\Http\Controllers\Admin\Curriculum\SkillController;
 use App\Http\Controllers\Admin\Curriculum\SubjectController;
+use App\Http\Controllers\Admin\Curriculum\TypingExerciseController;
 use App\Http\Controllers\Admin\Curriculum\UnitController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Child\ActivityPlayController;
 use App\Http\Controllers\Child\DashboardController as ChildDashboardController;
 use App\Http\Controllers\Child\LessonController as ChildLessonController;
 use App\Http\Controllers\Child\SubjectController as ChildSubjectController;
+use App\Http\Controllers\Child\TypingPlayController;
 use App\Http\Controllers\ChildProfileController;
 use App\Http\Controllers\ChildSessionController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
@@ -71,6 +73,8 @@ Route::middleware(['auth', 'verified', 'child.active'])->prefix('child')->name('
     Route::get('/lessons/{lesson}', [ChildLessonController::class, 'show'])->name('lessons.show');
     Route::get('/activities/{activity}/play', [ActivityPlayController::class, 'show'])->name('activities.play');
     Route::post('/activities/{activity}/answer', [ActivityPlayController::class, 'answer'])->name('activities.answer');
+    Route::get('/typing-exercises/{typingExercise}/play', [TypingPlayController::class, 'show'])->name('typing-exercises.play');
+    Route::post('/typing-exercises/{typingExercise}/complete', [TypingPlayController::class, 'complete'])->name('typing-exercises.complete');
 });
 
 Route::middleware(['auth', 'verified'])->post('/child/exit', [ChildSessionController::class, 'destroy'])->name('child.exit');
@@ -129,6 +133,11 @@ Route::middleware(['auth', 'verified', 'permission:admin.access'])->prefix('admi
         Route::post('/question-options', [QuestionOptionController::class, 'store'])->name('question-options.store');
         Route::patch('/question-options/{questionOption}', [QuestionOptionController::class, 'update'])->name('question-options.update');
         Route::delete('/question-options/{questionOption}', [QuestionOptionController::class, 'destroy'])->name('question-options.destroy');
+
+        Route::get('/typing-exercises', [TypingExerciseController::class, 'index'])->name('typing-exercises.index');
+        Route::post('/typing-exercises', [TypingExerciseController::class, 'store'])->name('typing-exercises.store');
+        Route::patch('/typing-exercises/{typingExercise}', [TypingExerciseController::class, 'update'])->name('typing-exercises.update');
+        Route::delete('/typing-exercises/{typingExercise}', [TypingExerciseController::class, 'destroy'])->name('typing-exercises.destroy');
     });
 });
 

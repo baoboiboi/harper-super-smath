@@ -70,6 +70,14 @@ class Lesson extends Model
     }
 
     /**
+     * @return HasMany<TypingExercise, $this>
+     */
+    public function typingExercises(): HasMany
+    {
+        return $this->hasMany(TypingExercise::class);
+    }
+
+    /**
      * Lessons visible to children: the lesson itself and its unit and
      * course must all be published.
      *

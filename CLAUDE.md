@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-"Harper Super sMath!" is being converted from a single-page arithmetic flashcard game into a full children's learning platform (math, typing, drawing, educational games, progress tracking, parent/teacher/school supervision). The project is mid-conversion, currently at the end of **Phase 4 (Mathematics)** of a 10-phase roadmap: auth, roles/permissions, parent accounts, child profiles, dashboard shells, the curriculum data model + admin CMS, and a working child-facing quiz/grading engine all exist. Typing, drawing, games, rewards/mastery, teacher/school tools, and billing are further out (see phases 5–10 below).
+"Harper Super sMath!" is being converted from a single-page arithmetic flashcard game into a full children's learning platform (math, typing, drawing, educational games, progress tracking, parent/teacher/school supervision). The project is mid-conversion, currently at the end of **Phase 5 (Typing)** of a 10-phase roadmap: auth, roles/permissions, parent accounts, child profiles, dashboard shells, the curriculum data model + admin CMS, a working math quiz/grading engine, and a working typing-practice engine all exist. Drawing, games, rewards/mastery, teacher/school tools, and billing are further out (see phases 6–10 below).
 
 The original static game's source is preserved under `legacy/` (`index.html`, `app.js`, `style.css`, `sounds/`) for reference — it is no longer served by the app. `CNAME` (GitHub Pages, `fli.ink`) is likewise stale: this app requires a PHP + MySQL host and can no longer deploy as a static site as-is.
 
@@ -89,6 +89,16 @@ The reason `show()` can't simply "find or create": a naive find-or-create-incomp
 
 Answer options are shuffled server-side per request and only `{id, label}` is sent to the client — never `is_correct` or `value`, which would let a child inspect the network tab to cheat.
 
+### Typing module
+
+`TypingExercise`/`TypingSession` are **deliberately separate from the `Activity`/`Question` math engine**, per the product spec's own DB schema — typing is continuous free-text input graded by WPM/accuracy/per-character stats, not discrete right/wrong answers, so it doesn't fit `QuestionGrader`'s model. It still hangs off the same `Lesson` (a Lesson can have `activities` and/or `typingExercises` — e.g. the seeded "Typing" subject's lesson has only a `TypingExercise`, no `Activity`). Visibility uses the same `Lesson::scopePubliclyAvailable()` gate as math content.
+
+`App\Services\TypingGrader::grade(targetText, typedText, elapsedSeconds)` is the sole grading authority: accuracy = exact character match up to the shorter of the two strings, WPM = `(typed chars / 5) / elapsed minutes` (standard convention: 5 characters = 1 "word"), and `key_stats` (per-character attempt/correct counts) is what "progress by key" reporting will eventually read from — don't recompute any of this client-side and trust it.
+
+**The play flow is architecturally different from the math engine, and that's intentional.** Math is a server round trip per question (`ActivityPlayController`); a typing exercise is one continuous client-side interaction — you cannot do a network request per keystroke. `resources/js/Pages/Child/TypingPlay.tsx` captures the whole attempt in React state (`typedText`, `startTime`) and only talks to the server once, via `POST .../complete`, when the exercise finishes (or a `time_limit_seconds` countdown expires). If you add features here, keep that boundary — don't try to make typing grade per-keystroke server-side.
+
+`resources/js/Components/VirtualKeyboard.tsx` highlights the next expected character; it only knows about lowercase letters, digits, and space — punctuation/shift state isn't modeled, matching the current `target_text` content the CMS actually authors (letters/words/sentences, not symbols).
+
 ### Audit logging
 
 `AuditLog::record(string $action, ?Model $subject, array $metadata, ?User $user)` is a static helper that writes to the polymorphic `audit_logs` table. Call it at points that change account/access state (see `ChildProfileController` and `Admin\UserManagementController` for examples) rather than adding ad hoc logging elsewhere.
@@ -103,10 +113,12 @@ Answer options are shuffled server-side per request and only `{id, label}` is se
 - `resources/js/Pages/Public/*` — one component per public route in `routes/web.php` (Home, About, HowItWorks, Subjects, Pricing, Safety, Faq, Contact, Terms, Privacy); content is static placeholder copy pending real content/legal review
 - `resources/js/Components/Card.tsx`, `EmptyState.tsx` — shared alongside Breeze's existing `PrimaryButton`/`Modal`/`TextInput`/etc.
 - `app/Services/QuestionGrader.php` — the only place that should know how to grade a `Question`; don't duplicate its choice-vs-value branching logic elsewhere.
+- `app/Services/TypingGrader.php` — the only place that should know how to grade a typing attempt (accuracy/WPM/key stats).
+- `resources/js/Pages/Child/TypingPlay.tsx` + `resources/js/Components/VirtualKeyboard.tsx` — the one client-heavy, stateful page in an otherwise mostly-server-driven Inertia app; see the Typing module section above for why.
 
 ## Working conventions
 
-- This repo is being built incrementally against a 10-phase roadmap (audit → foundation → curriculum → math → typing → drawing → games → progress/rewards → parent/teacher tools → subscriptions/launch). Foundation, curriculum, and mathematics (phases 2–4) are done. Don't jump ahead into a later phase's scope (e.g. don't build typing/drawing/game engines, the rewards/mastery/streak system, teacher/school tools, or billing) without it being explicitly requested.
+- This repo is being built incrementally against a 10-phase roadmap (audit → foundation → curriculum → math → typing → drawing → games → progress/rewards → parent/teacher tools → subscriptions/launch). Foundation, curriculum, mathematics, and typing (phases 2–5) are done. Don't jump ahead into a later phase's scope (e.g. don't build drawing/game engines, the rewards/mastery/streak system, teacher/school tools, or billing) without it being explicitly requested.
 - Follow existing patterns before introducing new ones: Form Requests for validation + authorization (`authorize()` calls `$user->can(...)`), Policies for model-level authorization, route-level `role:`/`permission:` middleware for section-level gating.
 - Don't hardcode role or permission name strings in more than one place if avoidable — `RoleAndPermissionSeeder` is the source of truth for what roles/permissions exist.
 - Use `docker compose exec laravel.test ...` for all artisan/composer/npm commands — nothing runs on the host.

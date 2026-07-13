@@ -28,6 +28,13 @@ class LessonController extends Controller
             ->get()
             ->groupBy('activity_id');
 
+        $typingExercises = $lesson->typingExercises()->orderBy('order')->get();
+
+        $typingSessionsByExercise = $childProfile->typingSessions()
+            ->whereIn('typing_exercise_id', $typingExercises->pluck('id'))
+            ->get()
+            ->groupBy('typing_exercise_id');
+
         return Inertia::render('Child/LessonShow', [
             'lesson' => $lesson->only(['id', 'title', 'description', 'learning_objective', 'instructions', 'difficulty', 'points_available', 'estimated_minutes']),
             'activities' => $activities->map(function ($activity) use ($attempts) {
@@ -46,6 +53,19 @@ class LessonController extends Controller
                         default => 'not_started',
                     },
                     'best_score' => $activityAttempts->where('completed_at', '!=', null)->max('correct_count'),
+                ];
+            }),
+            'typingExercises' => $typingExercises->map(function ($exercise) use ($typingSessionsByExercise) {
+                $sessions = $typingSessionsByExercise->get($exercise->id, collect());
+
+                return [
+                    'id' => $exercise->id,
+                    'title' => $exercise->title,
+                    'type' => $exercise->type->value,
+                    'points' => $exercise->points,
+                    'attempts_count' => $sessions->count(),
+                    'best_wpm' => $sessions->max('wpm'),
+                    'best_accuracy' => $sessions->max('accuracy_percent'),
                 ];
             }),
         ]);

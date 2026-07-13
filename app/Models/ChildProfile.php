@@ -40,6 +40,14 @@ class ChildProfile extends Model
         return $this->hasMany(ActivityAttempt::class);
     }
 
+    /**
+     * @return HasMany<TypingSession, $this>
+     */
+    public function typingSessions(): HasMany
+    {
+        return $this->hasMany(TypingSession::class);
+    }
+
     public function setPin(string $pin): void
     {
         $this->pin_hash = Hash::make($pin);

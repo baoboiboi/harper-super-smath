@@ -11,6 +11,16 @@ type Activity = {
     best_score: number | null;
 };
 
+type TypingExercise = {
+    id: number;
+    title: string;
+    type: string;
+    points: number;
+    attempts_count: number;
+    best_wpm: number | null;
+    best_accuracy: number | null;
+};
+
 const PLAYABLE_TYPES = [
     'multiple_choice',
     'number_input',
@@ -29,6 +39,7 @@ const STATUS_LABEL: Record<Activity['status'], string> = {
 export default function LessonShow({
     lesson,
     activities,
+    typingExercises,
 }: {
     lesson: {
         id: number;
@@ -39,6 +50,7 @@ export default function LessonShow({
         estimated_minutes: number | null;
     };
     activities: Activity[];
+    typingExercises: TypingExercise[];
 }) {
     return (
         <ChildLayout>
@@ -47,48 +59,84 @@ export default function LessonShow({
             <h1 className="pt-6 text-2xl font-extrabold text-gray-800">{lesson.title}</h1>
             {lesson.description && <p className="mt-2 text-gray-600">{lesson.description}</p>}
 
-            <div className="mt-8 space-y-3">
-                {activities.map((activity) => {
-                    const playable = PLAYABLE_TYPES.includes(activity.type);
+            {activities.length > 0 && (
+                <div className="mt-8 space-y-3">
+                    {activities.map((activity) => {
+                        const playable = PLAYABLE_TYPES.includes(activity.type);
 
-                    return (
+                        return (
+                            <div
+                                key={activity.id}
+                                className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm"
+                            >
+                                <div className="text-left">
+                                    <p className="font-bold text-gray-800">
+                                        {activity.status === 'completed' && '✅ '}
+                                        {activity.title}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        {activity.questions_count} questions · {activity.points} pts
+                                        {activity.best_score !== null && (
+                                            <> · Best: {activity.best_score}/{activity.questions_count}</>
+                                        )}
+                                    </p>
+                                </div>
+
+                                {playable ? (
+                                    <Link
+                                        href={
+                                            activity.status === 'completed'
+                                                ? `${route('child.activities.play', activity.id)}?retry=1`
+                                                : route('child.activities.play', activity.id)
+                                        }
+                                        className="rounded-full bg-sky-600 px-5 py-2 font-semibold text-white hover:bg-sky-700"
+                                    >
+                                        {STATUS_LABEL[activity.status]}
+                                    </Link>
+                                ) : (
+                                    <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-400">
+                                        Coming soon
+                                    </span>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {typingExercises.length > 0 && (
+                <div className="mt-8 space-y-3">
+                    <h2 className="text-left text-sm font-semibold uppercase text-gray-400">
+                        ⌨️ Typing Practice
+                    </h2>
+                    {typingExercises.map((exercise) => (
                         <div
-                            key={activity.id}
+                            key={exercise.id}
                             className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm"
                         >
                             <div className="text-left">
                                 <p className="font-bold text-gray-800">
-                                    {activity.status === 'completed' && '✅ '}
-                                    {activity.title}
+                                    {exercise.attempts_count > 0 && '✅ '}
+                                    {exercise.title}
                                 </p>
                                 <p className="text-sm text-gray-500">
-                                    {activity.questions_count} questions · {activity.points} pts
-                                    {activity.best_score !== null && (
-                                        <> · Best: {activity.best_score}/{activity.questions_count}</>
+                                    {exercise.points} pts
+                                    {exercise.best_wpm !== null && (
+                                        <> · Best: {exercise.best_wpm} WPM, {exercise.best_accuracy}% accurate</>
                                     )}
                                 </p>
                             </div>
 
-                            {playable ? (
-                                <Link
-                                    href={
-                                        activity.status === 'completed'
-                                            ? `${route('child.activities.play', activity.id)}?retry=1`
-                                            : route('child.activities.play', activity.id)
-                                    }
-                                    className="rounded-full bg-sky-600 px-5 py-2 font-semibold text-white hover:bg-sky-700"
-                                >
-                                    {STATUS_LABEL[activity.status]}
-                                </Link>
-                            ) : (
-                                <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-400">
-                                    Coming soon
-                                </span>
-                            )}
+                            <Link
+                                href={route('child.typing-exercises.play', exercise.id)}
+                                className="rounded-full bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700"
+                            >
+                                {exercise.attempts_count > 0 ? 'Practice Again' : 'Start'}
+                            </Link>
                         </div>
-                    );
-                })}
-            </div>
+                    ))}
+                </div>
+            )}
         </ChildLayout>
     );
 }
