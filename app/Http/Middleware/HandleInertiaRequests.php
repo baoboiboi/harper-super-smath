@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\ChildProfile;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -34,6 +35,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'activeChild' => fn () => $request->session()->has('active_child_profile_id')
+                ? ChildProfile::query()
+                    ->find($request->session()->get('active_child_profile_id'))
+                    ?->only(['id', 'name', 'avatar'])
+                : null,
         ];
     }
 }

@@ -11,7 +11,10 @@ use App\Http\Controllers\Admin\Curriculum\SubjectController;
 use App\Http\Controllers\Admin\Curriculum\UnitController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Child\ActivityPlayController;
 use App\Http\Controllers\Child\DashboardController as ChildDashboardController;
+use App\Http\Controllers\Child\LessonController as ChildLessonController;
+use App\Http\Controllers\Child\SubjectController as ChildSubjectController;
 use App\Http\Controllers\ChildProfileController;
 use App\Http\Controllers\ChildSessionController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
@@ -63,6 +66,11 @@ Route::middleware(['auth', 'verified', 'role:parent'])->prefix('parent')->name('
 
 Route::middleware(['auth', 'verified', 'child.active'])->prefix('child')->name('child.')->group(function () {
     Route::get('/dashboard', [ChildDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/subjects', [ChildSubjectController::class, 'index'])->name('subjects.index');
+    Route::get('/subjects/{subject}', [ChildSubjectController::class, 'show'])->name('subjects.show');
+    Route::get('/lessons/{lesson}', [ChildLessonController::class, 'show'])->name('lessons.show');
+    Route::get('/activities/{activity}/play', [ActivityPlayController::class, 'show'])->name('activities.play');
+    Route::post('/activities/{activity}/answer', [ActivityPlayController::class, 'answer'])->name('activities.answer');
 });
 
 Route::middleware(['auth', 'verified'])->post('/child/exit', [ChildSessionController::class, 'destroy'])->name('child.exit');

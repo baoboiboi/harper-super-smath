@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
 
@@ -29,6 +30,14 @@ class ChildProfile extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(User::class, 'parent_id');
+    }
+
+    /**
+     * @return HasMany<ActivityAttempt, $this>
+     */
+    public function activityAttempts(): HasMany
+    {
+        return $this->hasMany(ActivityAttempt::class);
     }
 
     public function setPin(string $pin): void

@@ -1,9 +1,10 @@
 import EmptyState from '@/Components/EmptyState';
 import ChildLayout from '@/Layouts/ChildLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 export default function Dashboard({
     childProfile,
+    hasSubjects,
 }: {
     childProfile: {
         id: number;
@@ -12,9 +13,10 @@ export default function Dashboard({
         age_band: string | null;
         grade_level: string | null;
     };
+    hasSubjects: boolean;
 }) {
     return (
-        <ChildLayout childName={childProfile.name}>
+        <ChildLayout>
             <Head title={`${childProfile.name}'s Dashboard`} />
 
             <div className="pt-10 text-8xl">
@@ -31,11 +33,20 @@ export default function Dashboard({
             </div>
 
             <div className="mt-10">
-                <EmptyState
-                    icon="📚"
-                    title="No lessons yet"
-                    description="Your grown-up is still setting things up. Check back soon for new activities!"
-                />
+                {hasSubjects ? (
+                    <Link
+                        href={route('child.subjects.index')}
+                        className="inline-block rounded-full bg-sky-600 px-8 py-4 text-xl font-bold text-white shadow hover:bg-sky-700"
+                    >
+                        🚀 Start Learning
+                    </Link>
+                ) : (
+                    <EmptyState
+                        icon="📚"
+                        title="No lessons yet"
+                        description="Your grown-up is still setting things up. Check back soon for new activities!"
+                    />
+                )}
             </div>
         </ChildLayout>
     );

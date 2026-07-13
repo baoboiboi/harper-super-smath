@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ContentStatus;
 use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -66,5 +67,21 @@ class Lesson extends Model
     public function activities(): HasMany
     {
         return $this->hasMany(Activity::class);
+    }
+
+    /**
+     * Lessons visible to children: the lesson itself and its unit and
+     * course must all be published.
+     *
+     * @param  Builder<Lesson>  $query
+     * @return Builder<Lesson>
+     */
+    public function scopePubliclyAvailable(Builder $query): Builder
+    {
+        return $query->where('status', ContentStatus::Published)
+            ->whereHas('unit', function ($query) {
+                $query->where('status', ContentStatus::Published)
+                    ->whereHas('course', fn ($q) => $q->where('status', ContentStatus::Published));
+            });
     }
 }

@@ -1,15 +1,16 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';
 
-export default function ChildLayout({
-    childName,
-    children,
-}: PropsWithChildren<{ childName: string }>) {
+export default function ChildLayout({ children }: PropsWithChildren) {
+    const { activeChild } = usePage().props as unknown as {
+        activeChild: { id: number; name: string; avatar: string | null } | null;
+    };
+
     return (
         <div className="min-h-screen bg-[linear-gradient(180deg,#fce4ec,#ffffff,#e3f2fd)]">
             <header className="flex items-center justify-between px-6 py-4">
                 <span className="text-lg font-bold text-gray-700">
-                    ⭐ Hi, {childName}!
+                    ⭐ Hi, {activeChild?.name}!
                 </span>
                 <button
                     onClick={() => router.post(route('child.exit'))}
