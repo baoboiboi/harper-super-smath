@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-"Harper Super sMath!" is being converted from a single-page arithmetic flashcard game into a full children's learning platform (math, typing, drawing, educational games, progress tracking, parent/teacher/school supervision). The project is mid-conversion, currently at the end of **Phase 6 (Drawing & Creativity)** of a 10-phase roadmap: auth, roles/permissions, parent accounts, child profiles, dashboard shells, the curriculum data model + admin CMS, a working math quiz/grading engine, a working typing-practice engine, and a working drawing/tracing engine with a private per-child gallery all exist. Games, rewards/mastery, teacher/school tools, and billing are further out (see phases 7–10 below).
+"Harper Super sMath!" is being converted from a single-page arithmetic flashcard game into a full children's learning platform (math, typing, drawing, educational games, progress tracking, parent/teacher/school supervision). The project is mid-conversion, currently at the end of **Phase 7 (Educational Games)** of a 10-phase roadmap: auth, roles/permissions, parent accounts, child profiles, dashboard shells, the curriculum data model + admin CMS, a working math quiz/grading engine, a working typing-practice engine, a working drawing/tracing engine with a private per-child gallery, and a reusable games framework with 4 playable games all exist. Rewards/mastery, teacher/school tools, and billing are further out (see phases 8–10 below).
 
 The original static game's source is preserved under `legacy/` (`index.html`, `app.js`, `style.css`, `sounds/`) for reference — it is no longer served by the app. `CNAME` (GitHub Pages, `fli.ink`) is likewise stale: this app requires a PHP + MySQL host and can no longer deploy as a static site as-is.
 
@@ -109,6 +109,16 @@ Answer options are shuffled server-side per request and only `{id, label}` is se
 
 **Known privacy gap, not yet hardened**: saved artwork PNGs live on Laravel's public storage disk (`storage/app/public/artwork/{child_profile_id}/{uuid}.png`, served via the `public/storage` symlink) with UUID filenames, which makes them unlisted/hard to guess but **not actually access-controlled** — anyone with a direct URL can view a file without authentication. This falls short of Section 18's "no public artwork by default" requirement in the strict sense. Treat this the same as the placeholder Terms/Privacy pages: acceptable to ship for local development, but flag it if this app is heading toward a real deployment — the fix is a signed/authenticated streaming route instead of the public disk.
 
+### Educational games
+
+Games are **code-defined, not admin-authored curriculum content** — unlike Subjects/Lessons/Activities, there's no CMS for them. `config/games.php` is the registry (key, name, icon, description, learning objective, points-per-correct); `App\Http\Controllers\Child\GameController::COMPONENTS` maps each config key to its Inertia page component. To add a new game: add an entry to both, then create the page component — no migration, no admin UI. This is deliberate: each game's puzzles are generated procedurally client-side (like the original legacy flashcard app), not authored per-instance the way a `Question` or `TypingExercise` is.
+
+**Only 4 of the product spec's 8 games are built**: Number Match, Memory Match, Pattern Builder, Word Builder — chosen because they're self-contained (no drag-and-drop, no dependency on other engines). **Math Adventure and Typing Race are deliberately not built yet**: they're presentation skins over the already-working math/typing engines (character movement, race animation) rather than new game logic, so building them is separable from this framework work. **Shape Sorter and Color and Draw are also not built**: both need real drag-and-drop interaction that the other 4 games avoid. Don't assume the `games` config array is the complete roster from the spec.
+
+Each game is a single self-contained page under `resources/js/Pages/Child/Games/` managing its own round-loop state (difficulty select → play N rounds → summary), and — same reasoning as typing and drawing — posts **once**, at the end, to `POST /child/games/{gameKey}/complete`. There's no `GameAttempt`-style in-progress record; a `GameSession` row is only ever written after a full playthrough, via `Child\GameController::complete()`, which looks up `points_per_correct` from `config/games.php` server-side rather than trusting a client-submitted points total (only `score`, `difficulty`, `rounds_played`, and `time_spent_seconds` are accepted from the client).
+
+`Components/DifficultySelector.tsx` and `Components/GameSummary.tsx` are shared across all 4 games' pre-game and post-game screens — reuse them for any new game rather than rebuilding that chrome.
+
 ### Audit logging
 
 `AuditLog::record(string $action, ?Model $subject, array $metadata, ?User $user)` is a static helper that writes to the polymorphic `audit_logs` table. Call it at points that change account/access state (see `ChildProfileController` and `Admin\UserManagementController` for examples) rather than adding ad hoc logging elsewhere.
@@ -126,10 +136,11 @@ Answer options are shuffled server-side per request and only `{id, label}` is se
 - `app/Services/TypingGrader.php` — the only place that should know how to grade a typing attempt (accuracy/WPM/key stats).
 - `resources/js/Pages/Child/TypingPlay.tsx` + `resources/js/Components/VirtualKeyboard.tsx` — the one other client-heavy, stateful page besides `Canvas.tsx`/drawing, in an otherwise mostly-server-driven Inertia app; see the Typing module section above for why.
 - `resources/js/Components/Canvas.tsx` — the shared drawing engine; see the Drawing module section above before adding a second canvas implementation anywhere.
+- `config/games.php` — the registry of playable games; see the Educational games section above before adding a new one.
 
 ## Working conventions
 
-- This repo is being built incrementally against a 10-phase roadmap (audit → foundation → curriculum → math → typing → drawing → games → progress/rewards → parent/teacher tools → subscriptions/launch). Foundation, curriculum, mathematics, typing, and drawing (phases 2–6) are done. Don't jump ahead into a later phase's scope (e.g. don't build game engines, the rewards/mastery/streak system, teacher/school tools, or billing) without it being explicitly requested.
+- This repo is being built incrementally against a 10-phase roadmap (audit → foundation → curriculum → math → typing → drawing → games → progress/rewards → parent/teacher tools → subscriptions/launch). Foundation, curriculum, mathematics, typing, drawing, and games (phases 2–7) are done. Don't jump ahead into a later phase's scope (e.g. don't build the rewards/mastery/streak system, teacher/school tools, or billing) without it being explicitly requested.
 - Follow existing patterns before introducing new ones: Form Requests for validation + authorization (`authorize()` calls `$user->can(...)`), Policies for model-level authorization, route-level `role:`/`permission:` middleware for section-level gating.
 - Don't hardcode role or permission name strings in more than one place if avoidable — `RoleAndPermissionSeeder` is the source of truth for what roles/permissions exist.
 - Use `docker compose exec laravel.test ...` for all artisan/composer/npm commands — nothing runs on the host.

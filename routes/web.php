@@ -17,6 +17,7 @@ use App\Http\Controllers\Child\ActivityPlayController;
 use App\Http\Controllers\Child\ArtworkController;
 use App\Http\Controllers\Child\DashboardController as ChildDashboardController;
 use App\Http\Controllers\Child\DrawingPlayController;
+use App\Http\Controllers\Child\GameController;
 use App\Http\Controllers\Child\LessonController as ChildLessonController;
 use App\Http\Controllers\Child\SubjectController as ChildSubjectController;
 use App\Http\Controllers\Child\TypingPlayController;
@@ -85,6 +86,9 @@ Route::middleware(['auth', 'verified', 'child.active'])->prefix('child')->name('
     Route::post('/artworks', [ArtworkController::class, 'store'])->name('artworks.store');
     Route::delete('/artworks/{artwork}', [ArtworkController::class, 'destroy'])->name('artworks.destroy');
     Route::get('/drawing-prompts/{drawingPrompt}/play', [DrawingPlayController::class, 'show'])->name('drawing-prompts.play');
+    Route::get('/games', [GameController::class, 'index'])->name('games.index');
+    Route::get('/games/{gameKey}', [GameController::class, 'play'])->name('games.play');
+    Route::post('/games/{gameKey}/complete', [GameController::class, 'complete'])->name('games.complete');
 });
 
 Route::middleware(['auth', 'verified'])->post('/child/exit', [ChildSessionController::class, 'destroy'])->name('child.exit');

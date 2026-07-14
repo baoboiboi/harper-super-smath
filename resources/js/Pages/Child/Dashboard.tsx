@@ -49,7 +49,13 @@ export default function Dashboard({
                 )}
             </div>
 
-            <div className="mt-6 flex justify-center gap-3">
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <Link
+                    href={route('child.games.index')}
+                    className="rounded-full bg-indigo-100 px-6 py-3 font-semibold text-indigo-700 hover:bg-indigo-200"
+                >
+                    🎮 Games
+                </Link>
                 <Link
                     href={route('child.draw')}
                     className="rounded-full bg-pink-100 px-6 py-3 font-semibold text-pink-700 hover:bg-pink-200"
